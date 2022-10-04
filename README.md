@@ -41,3 +41,25 @@ The tie-breaker to determine who gets a strike will be (in this order):
 Any player who does not enter a roster will get an automatic score of 1 for the scoring period AND will have replacement players and a replacement Defense assigned for the scoring period following the same guidelines for repeated players above.
 
 Any participant who goes 3 full weeks without entering a roster will be eliminated from all aspects the game.
+
+# Development
+
+`Makefile` is the command entry point.
+
+## System Components
+
+The software stack to support this project will be made up of 3 primary elements.
+
+A. The infrastructure application. It shall accept AWS credentials and will deploy the 
+application code statelessly from this repository into that account in the form of Lambda functions, 
+database schemas, and other resources. 
+- AWS SDK + TypeScript
+
+B. The server application. This will have two roles:
+- accept synchronous transactional requests from the UI application
+- retrieves external data as needed on a schedule or based on other events/queues.
+- TypeScript + Lambda + DynamoDB
+
+C. The UI application. This is how users will interact with the game.
+- this will be deployed to S3/Cloudfront at the canonical URL.
+- React + TypeScript
