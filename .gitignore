@@ -4,4 +4,7 @@ dist
 credentials.json
 src/reference-data/*.json
 src/reference-data/teams/*.json
+src/reference-data/dynamodb/*.json
 3StrikesGame.zip
+workspace/*
+!workspace/.gitkeep

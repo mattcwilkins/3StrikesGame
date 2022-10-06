@@ -1,4 +1,8 @@
-import { GetFunctionResponse, Runtime } from "@aws-sdk/client-lambda";
+import {
+  GetFunctionConfigurationCommandOutput,
+  Runtime,
+  waitUntilFunctionUpdated,
+} from "@aws-sdk/client-lambda";
 import { RoleDeployer } from "./RoleDeployer";
 import { GetRoleResponse } from "@aws-sdk/client-iam";
 import { Orchestrator } from "../orchestration/Orchestrator";
@@ -32,6 +36,7 @@ export class LambdaDeployer implements Deployer {
     const { iam, lambda } = orchestrator;
     const roleName = RoleDeployer.LAMBDA_ROLE_NAME;
     const fnName = LambdaDeployer.FN_NAMES[handlerName];
+    const handler = `dist/app-server/${handlerFolder}/${handlerName}.handler`;
 
     const getRole: null | GetRoleResponse = await iam
       .getRole({
@@ -46,20 +51,38 @@ export class LambdaDeployer implements Deployer {
 
     const roleArn = getRole.Role!.Arn!;
 
-    const getFn: null | GetFunctionResponse = await lambda
-      .getFunction({
+    const getFn: null | GetFunctionConfigurationCommandOutput = await lambda
+      .getFunctionConfiguration({
         FunctionName: fnName,
       })
       .catch(() => null);
 
     if (getFn) {
       console.info("Function exists:", fnName);
+
+      if (getFn.Handler !== handler) {
+        await lambda.updateFunctionConfiguration({
+          FunctionName: fnName,
+          Handler: handler,
+        });
+        console.info("upading handler name to", handler);
+        await waitUntilFunctionUpdated(
+          {
+            client: lambda,
+            maxWaitTime: 60,
+          },
+          {
+            FunctionName: fnName,
+          }
+        );
+      }
+
       await lambda.updateFunctionCode({
         FunctionName: fnName,
         S3Bucket: S3Deployer.LAMBDA_BUCKET(orchestrator.getAccountId()),
         S3Key: S3Deployer.LAMBDA_ZIP_FILENAME,
       });
-      console.info("Function code updated:", handlerName);
+      console.info("Function code/configuration updated:", handlerName);
     } else {
       await lambda.createFunction({
         FunctionName: fnName,
@@ -70,7 +93,7 @@ export class LambdaDeployer implements Deployer {
         },
         Runtime: Runtime.nodejs16x,
         Description: `${handlerName} handler for 3StrikesGame`,
-        Handler: `dist/app-server/${handlerFolder}/${handlerName}.handler`,
+        Handler: handler,
       });
       console.info("Function created:", handlerName);
     }

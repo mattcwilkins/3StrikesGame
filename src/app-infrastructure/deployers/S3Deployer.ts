@@ -79,7 +79,10 @@ export class S3Deployer implements Deployer {
 
     const localFileExists = fs.existsSync(zipFilePath);
 
-    const localModifiedDate = fs.statSync(zipFilePath).mtime;
+    const localModifiedDate = localFileExists
+      ? fs.statSync(zipFilePath).mtime
+      : null;
+
     const remoteModifiedDate: null | Date = await s3
       .headObject({
         Bucket,
@@ -90,13 +93,16 @@ export class S3Deployer implements Deployer {
       })
       .catch(() => null);
 
-    if (remoteModifiedDate === null && !localFileExists) {
+    if (remoteModifiedDate === null && localModifiedDate === null) {
       throw new Error(
         "Lambda ZIP file not found locally (make zip) or on S3 remote."
       );
     }
 
-    if (remoteModifiedDate === null || localModifiedDate > remoteModifiedDate) {
+    if (
+      remoteModifiedDate === null ||
+      (localModifiedDate !== null && localModifiedDate > remoteModifiedDate)
+    ) {
       console.info("Local ZIP file is newer, uploading");
       const put = await s3.putObject({
         Bucket,

@@ -1,4 +1,4 @@
-.PHONY: test dist dist-web
+.PHONY: test dist dist-web check
 
 # run unit tests.
 test:
@@ -29,8 +29,13 @@ clean:
 	rm -rf dist || rmdir /s /q dist
 	rm -rf dist-web || rmdir /s /q dist-web
 
-# create a zip of this distribution to use in e.g. Lambda
-zip:
-	(rm 3StrikesGame.zip || del 3StrikesGame.zip)
-	powershell Compress-Archive ./dist,./node_modules 3StrikesGame.zip # windows
-	# TODO # unix
+# create a zip of this distribution to use in e.g. Lambda.
+zip: dist
+	node dist/scripts/create-zip-workspace
+	(cd workspace && yarn install --production)
+	node dist/scripts/create-zip-file
+
+# local testing script.
+check:
+	make dist
+	node ./dist/scripts/client-data-check.js

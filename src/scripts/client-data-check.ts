@@ -1,25 +1,20 @@
+#!/usr/bin/env node
+
 import { MLBDataService } from "../services/ingestion/MLBDataService";
 import fs from "fs";
 import path from "path";
-import { MLBDataTeam } from "../interfaces/external/BaseballDataService";
+import { BaseballPlayerService } from "../services/internal/BaseballPlayerService";
 
 (async () => {
   const bdata = new MLBDataService();
+  await bdata.loadPlayers();
 
-  const teams = await bdata.teamAllSeason();
-  const teamIds = teams.team_all_season.queryResults.row.map(
-    (t: MLBDataTeam) => t.team_id
-  );
-  write(
-    {
-      team_ids: teamIds,
-    },
-    "team-ids.json"
-  );
-  for (const teamId of teamIds) {
-    const roster = await bdata.roster(teamId);
-    write(roster, `teams`, `roster-${teamId}.json`);
-  }
+  const playerService = new BaseballPlayerService();
+  const players = await playerService.listBaseballPlayers();
+
+  console.log(players);
+
+  write(players, "dynamodb", "players.json");
 })();
 
 function write(data: any, ...fileName: string[]) {

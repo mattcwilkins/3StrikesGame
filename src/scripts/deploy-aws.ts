@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { Orchestrator } from "../app-infrastructure/orchestration/Orchestrator";
 
 /**

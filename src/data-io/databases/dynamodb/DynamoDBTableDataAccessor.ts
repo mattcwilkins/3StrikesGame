@@ -26,7 +26,7 @@ export class DynamoDBTableDataAccessor<T> implements DataAccessor<T> {
 
   public async list(): Promise<Row<T>[]> {
     const { doc } = this;
-    const list = await doc.query({
+    const list = await doc.scan({
       TableName: this.table,
     });
     return list.Items as Row<T>[];
@@ -40,7 +40,13 @@ export class DynamoDBTableDataAccessor<T> implements DataAccessor<T> {
       Key: {
         id,
       },
-      ...createUpdateParamsFor(row),
+      ...createUpdateParamsFor(
+        (() => {
+          const withoutId = { ...row };
+          delete withoutId.id;
+          return withoutId;
+        })()
+      ),
     });
     return this.get(id);
   }
