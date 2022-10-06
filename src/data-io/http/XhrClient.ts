@@ -1,4 +1,4 @@
-import { HttpClient } from "../interfaces/HttpClient";
+import { HttpClient } from "../../interfaces/internal/HttpClient";
 
 export class XhrClient implements HttpClient {
   delete<T>(url: string): Promise<T> {

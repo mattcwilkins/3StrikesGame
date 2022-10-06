@@ -1,5 +1,5 @@
-import { NodeClient } from "../http/NodeClient";
-import { ListTeamsResponse } from "../interfaces/services/BaseballDataService";
+import { NodeClient } from "../data-io/http/NodeClient";
+import { ListTeamsResponse } from "../interfaces/internal/services/BaseballDataService";
 
 export class BaseballDataService {
   public constructor(

@@ -1,12 +1,15 @@
 import { BaseballDataService } from "../services/BaseballDataService";
 import fs from "fs";
 import path from "path";
+import { Team } from "../interfaces/internal/services/BaseballDataService";
 
 (async () => {
   const bdata = new BaseballDataService();
 
   const teams = await bdata.listTeams();
-  const teamIds = teams.team_all_season.queryResults.row.map((t) => t.team_id);
+  const teamIds = teams.team_all_season.queryResults.row.map(
+    (t: Team) => t.team_id
+  );
   write(
     {
       team_ids: teamIds,

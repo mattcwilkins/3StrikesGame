@@ -1,4 +1,4 @@
-import { HttpClient } from "../interfaces/HttpClient";
+import { HttpClient } from "../../interfaces/internal/HttpClient";
 import { IncomingMessage } from "http";
 
 const https = require("https");

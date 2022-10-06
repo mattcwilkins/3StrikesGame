@@ -8,20 +8,30 @@ import { RoleDeployer } from "../deployers/RoleDeployer";
 import { S3Deployer } from "../deployers/S3Deployer";
 
 export class Orchestrator {
-  private accountId: string = "";
   public roleDeployer = new RoleDeployer(this);
   public s3Deployer = new S3Deployer(this);
   public lambdaDeployer = new LambdaDeployer(this);
+
+  private accountId: string = "";
+  private readonly ready: Promise<void>;
 
   public constructor(
     public s3 = new S3({ region }),
     public lambda = new Lambda({ region }),
     public iam = new IAM({ region }),
     public sts = new STS({ region })
-  ) {}
+  ) {
+    this.ready = new Promise(async (resolve, reject) => {
+      const accountId = (await sts.getCallerIdentity({})).Account!;
+      this.setAccountId(accountId);
+      resolve();
+    });
+  }
 
   public async deploy() {
+    await this.ready;
     const { roleDeployer, lambdaDeployer, s3Deployer } = this;
+
     await roleDeployer.deploy();
     await s3Deployer.deploy();
     await lambdaDeployer.deploy();

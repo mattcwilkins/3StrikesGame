@@ -1,4 +1,4 @@
-import { TeamId } from "../external/MlbDataApi";
+import { TeamId } from "../../external/MlbDataApi";
 
 export type ListTeamsResponse = {
   team_all_season: {
