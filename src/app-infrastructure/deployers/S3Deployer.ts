@@ -2,8 +2,9 @@ import path from "path";
 import fs from "fs";
 import { Orchestrator } from "../orchestration/Orchestrator";
 import { HeadObjectOutput } from "@aws-sdk/client-s3";
+import { Deployer } from "../../interfaces/internal/infra/Deployer";
 
-export class S3Deployer {
+export class S3Deployer implements Deployer {
   public static LAMBDA_BUCKET = (accountId: string) =>
     "3-strikes-game-bucket-lambda-" + accountId;
 
@@ -20,6 +21,10 @@ export class S3Deployer {
   public async deploy() {
     await this.deployLambdaZip();
     await this.deployWebUi();
+  }
+
+  public async destroy() {
+    // not deleting S3 for now.
   }
 
   public async deployWebUi() {
@@ -72,8 +77,10 @@ export class S3Deployer {
 
     await this.ensureBucket(Bucket);
 
+    const localFileExists = fs.existsSync(zipFilePath);
+
     const localModifiedDate = fs.statSync(zipFilePath).mtime;
-    const remoteModifiedDate = await s3
+    const remoteModifiedDate: null | Date = await s3
       .headObject({
         Bucket,
         Key: path.basename(zipFilePath),
@@ -81,9 +88,15 @@ export class S3Deployer {
       .then((headObject: HeadObjectOutput) => {
         return headObject.LastModified!;
       })
-      .catch(() => new Date("3000/1/1"));
+      .catch(() => null);
 
-    if (localModifiedDate > remoteModifiedDate) {
+    if (remoteModifiedDate === null && !localFileExists) {
+      throw new Error(
+        "Lambda ZIP file not found locally (make zip) or on S3 remote."
+      );
+    }
+
+    if (remoteModifiedDate === null || localModifiedDate > remoteModifiedDate) {
       console.info("Local ZIP file is newer, uploading");
       const put = await s3.putObject({
         Bucket,

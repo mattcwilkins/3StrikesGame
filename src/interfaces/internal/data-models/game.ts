@@ -11,7 +11,7 @@ export type BaseballPlayer = {
   playingPositions: BaseballPlayerPosition[];
   timestamp: Timestamp;
   atBats: Identifier<BaseballPlayerAtBat>[];
-  team: BaseballTeam;
+  team: Identifier<BaseballTeam>;
 };
 
 export type BaseballPlayerPosition =
@@ -68,6 +68,7 @@ export type BaseballPlayerAtBat = {
   totalBases: number;
   walked: boolean;
   hitByPitch: boolean;
+  result: string; // for display purposes.
   timestamp: Timestamp; // when at bat was recorded.
 };
 

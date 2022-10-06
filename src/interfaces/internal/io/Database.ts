@@ -27,7 +27,21 @@ export interface DataAccessor<T> {
    * @returns the Identifier of the created or updated row.
    */
   set<T>(row: Row<T> | NewRow<T>): Promise<Identifier>;
+
+  /**
+   * @param id - retrieves single object.
+   */
   get<T>(id: Identifier): Promise<Row<T>>;
+
+  /**
+   * Returns all items. This is not practical on unbounded tables.
+   * TODO: pagination options.
+   */
+  list(): Promise<Row<T>[]>;
+
+  /**
+   * @param id - to be deleted.
+   */
   delete<T>(id: Identifier): Promise<void>;
 }
 

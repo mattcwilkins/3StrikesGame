@@ -1,22 +1,31 @@
-import { GetFunctionResponse } from "@aws-sdk/client-lambda";
+import { GetFunctionResponse, Runtime } from "@aws-sdk/client-lambda";
 import { RoleDeployer } from "./RoleDeployer";
 import { GetRoleResponse } from "@aws-sdk/client-iam";
 import { Orchestrator } from "../orchestration/Orchestrator";
 import { S3Deployer } from "./S3Deployer";
-import { Runtime } from "@aws-sdk/client-lambda";
+import { Deployer } from "../../interfaces/internal/infra/Deployer";
 
-export class LambdaDeployer {
+export class LambdaDeployer implements Deployer {
   public static readonly FN_NAMES = {
     healthcheck: "3StrikesGame-fn-healthcheck",
+    getPlayerList: "3StrikesGame-fn-getPlayerList",
+    loadPlayerList: "3StrikesGame-fn-loadPlayerList",
   };
 
   public constructor(private orchestrator: Orchestrator) {}
 
   public async deploy() {
-    await this.deployHandler("healthcheck");
+    await this.deployHandler("lambda-rest", "healthcheck");
+    await this.deployHandler("lambda-rest", "getPlayerList");
+    await this.deployHandler("lambda-worker", "loadPlayerList");
+  }
+
+  public async destroy() {
+    await this.deleteHandler(LambdaDeployer.FN_NAMES.healthcheck);
   }
 
   public async deployHandler(
+    handlerFolder: string,
     handlerName: keyof typeof LambdaDeployer.FN_NAMES
   ) {
     const { orchestrator } = this;
@@ -42,6 +51,7 @@ export class LambdaDeployer {
         FunctionName: fnName,
       })
       .catch(() => null);
+
     if (getFn) {
       console.info("Function exists:", fnName);
       await lambda.updateFunctionCode({
@@ -60,9 +70,18 @@ export class LambdaDeployer {
         },
         Runtime: Runtime.nodejs16x,
         Description: `${handlerName} handler for 3StrikesGame`,
-        Handler: `dist/app-server/lambda/${handlerName}.handler`,
+        Handler: `dist/app-server/${handlerFolder}/${handlerName}.handler`,
       });
       console.info("Function created:", handlerName);
     }
+  }
+
+  public async deleteHandler(functionName: string) {
+    const { lambda } = this.orchestrator;
+    await lambda
+      .deleteFunction({
+        FunctionName: functionName,
+      })
+      .catch(() => null);
   }
 }

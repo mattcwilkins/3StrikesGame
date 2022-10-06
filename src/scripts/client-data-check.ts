@@ -1,14 +1,14 @@
-import { BaseballDataService } from "../services/BaseballDataService";
+import { MLBDataService } from "../services/ingestion/MLBDataService";
 import fs from "fs";
 import path from "path";
-import { Team } from "../interfaces/internal/services/BaseballDataService";
+import { MLBDataTeam } from "../interfaces/external/BaseballDataService";
 
 (async () => {
-  const bdata = new BaseballDataService();
+  const bdata = new MLBDataService();
 
-  const teams = await bdata.listTeams();
+  const teams = await bdata.teamAllSeason();
   const teamIds = teams.team_all_season.queryResults.row.map(
-    (t: Team) => t.team_id
+    (t: MLBDataTeam) => t.team_id
   );
   write(
     {
@@ -17,7 +17,7 @@ import { Team } from "../interfaces/internal/services/BaseballDataService";
     "team-ids.json"
   );
   for (const teamId of teamIds) {
-    const roster = await bdata.listPlayers(teamId);
+    const roster = await bdata.roster(teamId);
     write(roster, `teams`, `roster-${teamId}.json`);
   }
 })();

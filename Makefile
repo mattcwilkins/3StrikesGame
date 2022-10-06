@@ -1,27 +1,33 @@
 .PHONY: test dist dist-web
 
-# run unit tests
+# run unit tests.
 test:
 	npx jest
 
-# compile to distribution
+# perform all steps in test, build, and deploy.
+full:
+	make test clean dist dist-web zip aws
+
+# compile to server & infra distribution.
 dist:
 	npx tsc
 
+# create web ui distribution.
 dist-web:
 	npx webpack
 
 # deploy to aws
-aws: dist
+aws: dist dist-web
 	node dist/scripts/deploy-aws
 
-# install dependencies
+# install development  and runtime dependencies.
 node_modules/typescript:
 	yarn
 
-# delete distribution folder
+# delete distribution folder.
 clean:
 	rm -rf dist || rmdir /s /q dist
+	rm -rf dist-web || rmdir /s /q dist-web
 
 # create a zip of this distribution to use in e.g. Lambda
 zip:

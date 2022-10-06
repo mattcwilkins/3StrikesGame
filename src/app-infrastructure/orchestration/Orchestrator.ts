@@ -6,8 +6,9 @@ import { Lambda } from "@aws-sdk/client-lambda";
 import { LambdaDeployer } from "../deployers/LambdaDeployer";
 import { RoleDeployer } from "../deployers/RoleDeployer";
 import { S3Deployer } from "../deployers/S3Deployer";
+import { Deployer } from "../../interfaces/internal/infra/Deployer";
 
-export class Orchestrator {
+export class Orchestrator implements Deployer {
   public roleDeployer = new RoleDeployer(this);
   public s3Deployer = new S3Deployer(this);
   public lambdaDeployer = new LambdaDeployer(this);
@@ -35,6 +36,15 @@ export class Orchestrator {
     await roleDeployer.deploy();
     await s3Deployer.deploy();
     await lambdaDeployer.deploy();
+  }
+
+  public async destroy() {
+    await this.ready;
+    const { roleDeployer, lambdaDeployer, s3Deployer } = this;
+
+    await lambdaDeployer.destroy();
+    await s3Deployer.destroy();
+    await roleDeployer.destroy();
   }
 
   public setAccountId(id: string) {

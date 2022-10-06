@@ -4,14 +4,25 @@ import {
   GetRoleResponse,
 } from "@aws-sdk/client-iam";
 import { Orchestrator } from "../orchestration/Orchestrator";
+import { Deployer } from "../../interfaces/internal/infra/Deployer";
 
-export class RoleDeployer {
+export class RoleDeployer implements Deployer {
   public static readonly LAMBDA_ROLE_NAME = "3Strikes-LambdaRole";
 
   public constructor(private orchestrator: Orchestrator) {}
 
   public async deploy() {
     await this.deployLambdaRole();
+  }
+
+  public async destroy() {
+    const { orchestrator } = this;
+    const { iam } = orchestrator;
+    await iam
+      .deleteRole({
+        RoleName: RoleDeployer.LAMBDA_ROLE_NAME,
+      })
+      .catch(() => {});
   }
 
   public async deployLambdaRole() {
