@@ -1,7 +1,5 @@
-import { RoleDeployer } from "../app-infrastructure/deployers/RoleDeployer";
+import { Orchestrator } from "../app-infrastructure/orchestration/Orchestrator";
 
 (async () => {
-  const roleDeployer = new RoleDeployer();
-
-  await roleDeployer.deploy();
+  await new Orchestrator().deploy();
 })();

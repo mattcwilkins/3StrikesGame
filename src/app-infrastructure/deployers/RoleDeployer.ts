@@ -2,28 +2,21 @@ import {
   AttachedPolicy,
   CreateRoleResponse,
   GetRoleResponse,
-  IAM,
 } from "@aws-sdk/client-iam";
-import credentials from "../../credentials.json";
-
-const { region, secretAccessKey, accessKeyId } = credentials;
+import { Orchestrator } from "../orchestration/Orchestrator";
 
 export class RoleDeployer {
   public static readonly LAMBDA_ROLE_NAME = "3Strikes-LambdaRole";
 
-  public constructor(
-    private iam = new IAM({
-      region,
-      credentials: { secretAccessKey, accessKeyId },
-    })
-  ) {}
+  public constructor(private orchestrator: Orchestrator) {}
 
   public async deploy() {
     await this.deployLambdaRole();
   }
 
   public async deployLambdaRole() {
-    const { iam } = this;
+    const { orchestrator } = this;
+    const { iam } = orchestrator;
     const roleName = RoleDeployer.LAMBDA_ROLE_NAME;
     let role: null | GetRoleResponse | CreateRoleResponse = await iam
       .getRole({

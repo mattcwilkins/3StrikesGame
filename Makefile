@@ -18,3 +18,8 @@ node_modules/typescript:
 
 clean:
 	rm -rf dist || rmdir /s /q dist
+
+zip:
+	(rm 3StrikesGame.zip || del 3StrikesGame.zip)
+	powershell Compress-Archive ./dist,./node_modules 3StrikesGame.zip # windows
+	# TODO # unix
