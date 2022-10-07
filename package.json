@@ -43,6 +43,7 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
+    "@aws-sdk/client-api-gateway": "^3.186.0",
     "@aws-sdk/client-dynamodb": "^3.183.0",
     "@aws-sdk/client-iam": "^3.183.0",
     "@aws-sdk/client-lambda": "^3.183.0",

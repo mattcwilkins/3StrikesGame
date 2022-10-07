@@ -12,16 +12,16 @@ import { Deployer } from "../../interfaces/internal/infra/Deployer";
 export class LambdaDeployer implements Deployer {
   public static readonly FN_NAMES = {
     healthcheck: "3StrikesGame-fn-healthcheck",
-    getPlayerList: "3StrikesGame-fn-getPlayerList",
-    loadPlayerList: "3StrikesGame-fn-loadPlayerList",
+    player: "3StrikesGame-fn-player",
+    loader: "3StrikesGame-fn-loader",
   };
 
   public constructor(private orchestrator: Orchestrator) {}
 
   public async deploy() {
     await this.deployHandler("lambda-rest", "healthcheck");
-    await this.deployHandler("lambda-rest", "getPlayerList");
-    await this.deployHandler("lambda-worker", "loadPlayerList");
+    await this.deployHandler("lambda-rest", "player");
+    await this.deployHandler("lambda-worker", "loader");
   }
 
   public async destroy() {

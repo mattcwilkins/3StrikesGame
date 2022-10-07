@@ -49,7 +49,7 @@ export class RoleDeployer implements Deployer {
               Effect: "Allow",
               Action: ["sts:AssumeRole"],
               Principal: {
-                Service: ["lambda.amazonaws.com"],
+                Service: ["lambda.amazonaws.com", "apigateway.amazonaws.com"],
               },
             },
           ],

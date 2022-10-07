@@ -39,3 +39,8 @@ zip: dist
 check:
 	make dist
 	node ./dist/scripts/client-data-check.js
+
+# debugging arbitrary script.
+debug:
+	make dist
+	node ./dist/scripts/infra-debug
