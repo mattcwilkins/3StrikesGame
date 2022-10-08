@@ -13,6 +13,7 @@ export class ApiGatewayDeployer implements Deployer {
 
   public async deploy() {
     await this.deployApiResource("healthcheck");
+    await this.deployApiResource("player");
     await this.deployGateway();
   }
 
@@ -120,14 +121,14 @@ export class ApiGatewayDeployer implements Deployer {
     const putMethod = await apig.putMethod({
       restApiId,
       resourceId,
-      httpMethod: "GET",
+      httpMethod: "POST",
       authorizationType: "NONE",
     });
 
     const putMethodResponse = await apig.putMethodResponse({
       restApiId,
       resourceId,
-      httpMethod: "GET",
+      httpMethod: "POST",
       statusCode: "200",
     });
 
@@ -140,8 +141,8 @@ export class ApiGatewayDeployer implements Deployer {
     await apig.putIntegration({
       restApiId,
       resourceId,
-      httpMethod: "GET",
-      type: IntegrationType.AWS,
+      httpMethod: "POST",
+      type: IntegrationType.AWS_PROXY,
       integrationHttpMethod: "POST",
       uri: invocationArn,
       credentials: `arn:aws:iam::${orchestrator.getAccountId()}:role/${
@@ -152,8 +153,9 @@ export class ApiGatewayDeployer implements Deployer {
     await apig.putIntegrationResponse({
       restApiId,
       resourceId,
-      httpMethod: "GET",
+      httpMethod: "POST",
       statusCode: "200",
+      responseTemplates: {},
       selectionPattern: "",
     });
   }

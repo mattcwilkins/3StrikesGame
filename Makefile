@@ -30,7 +30,7 @@ clean:
 	rm -rf dist-web || rmdir /s /q dist-web
 
 # create a zip of this distribution to use in e.g. Lambda.
-zip: dist
+zip:
 	node dist/scripts/create-zip-workspace
 	(cd workspace && yarn install --production)
 	node dist/scripts/create-zip-file
