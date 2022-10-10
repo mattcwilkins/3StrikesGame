@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   entry: "./src/app-web-ui/initialize-web-ui.ts",
-  mode: "production",
+  mode: process.env.mode || "production",
   module: {
     rules: [
       {

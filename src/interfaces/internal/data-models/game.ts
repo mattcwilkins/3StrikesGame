@@ -31,7 +31,8 @@ export type BaseballPlayerPosition =
 
 export type BaseballTeam = {
   id: Identifier;
-  name: string;
+  name: string; // full-name.
+  franchiseCode: string; // 3-letter.
   roster: Identifier<BaseballPlayer>[];
   timestamp: Timestamp;
   outings: Identifier<BaseballTeamDefensiveGamePerformance>[];

@@ -12,6 +12,13 @@ export type Row<T> = T & {
 };
 
 /**
+ * A partial update.
+ */
+export type RowUpdate<T> = Partial<T> & {
+  id: Identifier;
+};
+
+/**
  * Represents an unsaved new object.
  */
 export type NewRow<T> = T & {
@@ -26,12 +33,12 @@ export interface DataAccessor<T> {
    * @param row - to be saved.
    * @returns the Identifier of the created or updated row.
    */
-  set<T>(row: Row<T> | NewRow<T>): Promise<Identifier>;
+  set(row: Row<T> | NewRow<T> | RowUpdate<T>): Promise<Identifier>;
 
   /**
    * @param id - retrieves single object.
    */
-  get<T>(id: Identifier): Promise<Row<T>>;
+  get(id: Identifier): Promise<Row<T>>;
 
   /**
    * Returns all items. This is not practical on unbounded tables.
@@ -42,7 +49,7 @@ export interface DataAccessor<T> {
   /**
    * @param id - to be deleted.
    */
-  delete<T>(id: Identifier): Promise<void>;
+  delete(id: Identifier): Promise<void>;
 }
 
 /**

@@ -14,6 +14,7 @@ export class ApiGatewayDeployer implements Deployer {
   public async deploy() {
     await this.deployApiResource("healthcheck");
     await this.deployApiResource("player");
+    await this.deployApiResource("team");
     await this.deployGateway();
   }
 

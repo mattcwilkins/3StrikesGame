@@ -13,6 +13,7 @@ export class LambdaDeployer implements Deployer {
   public static readonly FN_NAMES = {
     healthcheck: "3StrikesGame-fn-healthcheck",
     player: "3StrikesGame-fn-player",
+    team: "3StrikesGame-fn-team",
     loader: "3StrikesGame-fn-loader",
   };
 
@@ -21,6 +22,7 @@ export class LambdaDeployer implements Deployer {
   public async deploy() {
     await this.deployHandler("lambda-rest", "healthcheck");
     await this.deployHandler("lambda-rest", "player");
+    await this.deployHandler("lambda-rest", "team");
     await this.deployHandler("lambda-worker", "loader");
   }
 

@@ -48,7 +48,7 @@ export class DynamoDBTableDataAccessor<T> implements DataAccessor<T> {
         })()
       ),
     });
-    return this.get(id);
+    return (await this.get(id)).id;
   }
 
   public async delete<T>(id: Identifier) {

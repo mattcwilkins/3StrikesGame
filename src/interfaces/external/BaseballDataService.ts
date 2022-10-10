@@ -10,7 +10,9 @@ export type MLBDataTeamAllSeasonResponse = {
 };
 
 export type MLBDataTeam = {
-  team_id: TeamId & Identifier;
+  team_id: TeamId;
+  franchise_code: string; // 3-letter.
+  name_display_full: string;
 };
 
 export type MLBDataRosterResponse = {

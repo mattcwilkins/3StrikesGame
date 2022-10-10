@@ -1,8 +1,8 @@
 import { APIGatewayEvent, Context, Handler } from "aws-lambda";
-import { BaseballPlayerService } from "../../services/internal/BaseballPlayerService";
+import { BaseballTeamService } from "../../services/internal/BaseballTeamService";
 import { Rpc } from "../../interfaces/internal/Rpc";
 
-const baseballPlayerService = new BaseballPlayerService();
+const baseballTeamService = new BaseballTeamService();
 
 /**
  * Retrieves the list of players available for selection.
@@ -11,14 +11,14 @@ export const handler: Handler<APIGatewayEvent> = async (
   event,
   context: Context
 ) => {
-  console.info("player lambda", event, context);
+  console.info("team lambda", event, context);
   const rpc: Rpc = JSON.parse(event.body || "{}");
 
   let response;
 
   switch (rpc.method) {
     default:
-      response = await baseballPlayerService.listBaseballPlayers();
+      response = await baseballTeamService.listBaseballTeams();
   }
 
   return {

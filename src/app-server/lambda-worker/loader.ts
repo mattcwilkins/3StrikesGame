@@ -8,6 +8,6 @@ const mlbDataService = new MLBDataService();
  */
 export const handler: Handler<{}> = async (event: {}, context: Context) => {
   console.info("Starting to load players from external data.");
-  await mlbDataService.loadPlayers();
+  await mlbDataService.loadTeamsAndPlayers();
   console.info("Finished loading players from external data.");
 };
