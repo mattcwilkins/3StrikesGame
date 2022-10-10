@@ -1,6 +1,7 @@
 .idea
 node_modules
 dist
+dist-web
 credentials.json
 src/reference-data/*.json
 src/reference-data/teams/*.json
