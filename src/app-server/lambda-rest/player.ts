@@ -5,7 +5,7 @@ import { Rpc } from "../../interfaces/internal/Rpc";
 const baseballPlayerService = new BaseballPlayerService();
 
 /**
- * Retrieves the list of players available for selection.
+ * Handles RPC requests for player data.
  */
 export const handler: Handler<APIGatewayEvent> = async (
   event,

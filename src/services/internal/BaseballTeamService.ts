@@ -5,6 +5,9 @@ import {
 import { DynamoDBService } from "./base/DynamoDBService";
 import { Identifier, Row } from "../../interfaces/internal/io/Database";
 
+/**
+ * Level-2 abstraction for the teams table in DynamoDB.
+ */
 export class BaseballTeamService extends DynamoDBService<BaseballTeam> {
   public constructor() {
     super("teams");

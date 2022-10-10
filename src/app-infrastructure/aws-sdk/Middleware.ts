@@ -1,5 +1,8 @@
 import { MiddlewareStack } from "@aws-sdk/types";
 
+/**
+ * Hooks into the AWS SDK middleware stack.
+ */
 export class Middleware {
   public static requestSummaryMiddleware(
     middlewareStack: MiddlewareStack<any, any>

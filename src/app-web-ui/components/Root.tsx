@@ -3,6 +3,9 @@ import "bootstrap/dist/css/bootstrap.css";
 import "./Root.css";
 import { SelectionForm } from "./selection/SelectionForm";
 
+/**
+ * Web UI root initializer.
+ */
 export class Root extends React.Component<{}, {}> {
   public render() {
     return (

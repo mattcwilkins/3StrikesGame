@@ -11,6 +11,9 @@ import { APIGateway } from "@aws-sdk/client-api-gateway";
 import { ApiGatewayDeployer } from "../deployers/ApiGatewayDeployer";
 import { Middleware } from "../aws-sdk/Middleware";
 
+/**
+ * Orchestration controller for the various deployer classes.
+ */
 export class Orchestrator implements Deployer {
   public roleDeployer = new RoleDeployer(this);
   public s3Deployer = new S3Deployer(this);

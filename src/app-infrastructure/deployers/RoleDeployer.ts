@@ -6,6 +6,9 @@ import {
 import { Orchestrator } from "../orchestration/Orchestrator";
 import { Deployer } from "../../interfaces/internal/infra/Deployer";
 
+/**
+ * Ensures the lambda role exists and is configured correctly with permissions.
+ */
 export class RoleDeployer implements Deployer {
   public static readonly LAMBDA_ROLE_NAME = "3Strikes-LambdaRole";
 

@@ -1,5 +1,8 @@
 import { HttpClient } from "../../interfaces/internal/HttpClient";
 
+/**
+ * HTTP in browsers, i.e. web ui.
+ */
 export class XhrClient implements HttpClient {
   delete<T>(url: string): Promise<T> {
     throw new Error("not implemented");

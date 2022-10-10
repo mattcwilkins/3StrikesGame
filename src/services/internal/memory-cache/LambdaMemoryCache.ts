@@ -12,6 +12,9 @@ export type LambdaMemoryCacheData = {
   };
 };
 
+/**
+ * Memory cache for Lambda, to avoid requesting identical data twice in the same transaction.
+ */
 export class LambdaMemoryCache extends MemoryCache<LambdaMemoryCacheData> {
   public static instance: LambdaMemoryCache = new LambdaMemoryCache();
   public static getInstance() {

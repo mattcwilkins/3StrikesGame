@@ -1,5 +1,7 @@
 # Server
 
-Handle transactional requests from the UI application.
+## `lambda-rest`
+Handle transactional requests from the UI application. 
 
-Handle asynchronous workloads from schedules or queues.
+## `lambda-worker`
+Handle asynchronous workloads from dev, schedules, or queues.

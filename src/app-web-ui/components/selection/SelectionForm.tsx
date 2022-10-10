@@ -15,6 +15,9 @@ export interface SelectionFormState {
   teams: BaseballTeam[];
 }
 
+/**
+ * Selection form for a 3 Strikes game selection by a game player.
+ */
 export class SelectionForm extends React.Component<
   SelectionFormProps,
   SelectionFormState

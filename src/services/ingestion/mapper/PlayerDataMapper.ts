@@ -4,6 +4,9 @@ import {
   BaseballPlayerPosition,
 } from "../../../interfaces/internal/data-models/game";
 
+/**
+ * Maps external data to internal data.
+ */
 export class PlayerDataMapper {
   public static mapPlayer(player: MLBDataPlayer): BaseballPlayer {
     return {

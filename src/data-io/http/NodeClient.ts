@@ -3,6 +3,9 @@ import { IncomingMessage } from "http";
 
 const https = require("https");
 
+/**
+ * HTTP in NodeJS (e.g. Lambda).
+ */
 export class NodeClient implements HttpClient {
   public get<T>(url: string): Promise<T> {
     return this.makeRequest(url, "GET");

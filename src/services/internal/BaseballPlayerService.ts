@@ -1,7 +1,9 @@
 import { BaseballPlayer } from "../../interfaces/internal/data-models/game";
 import { DynamoDBService } from "./base/DynamoDBService";
-import { Identifier, Row } from "../../interfaces/internal/io/Database";
 
+/**
+ * Level-2 abstraction for the players table in DynamoDB.
+ */
 export class BaseballPlayerService extends DynamoDBService<BaseballPlayer> {
   public constructor() {
     super("players");

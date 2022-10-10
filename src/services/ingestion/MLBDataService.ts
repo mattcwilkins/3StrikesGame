@@ -9,6 +9,9 @@ import { LambdaMemoryCache } from "../internal/memory-cache/LambdaMemoryCache";
 import { BaseballTeamService } from "../internal/BaseballTeamService";
 import { TeamId } from "../../interfaces/external/MlbDataApi";
 
+/**
+ * Client to the MLBAM lookup-service.
+ */
 export class MLBDataService {
   public constructor(
     private client = new NodeClient(),

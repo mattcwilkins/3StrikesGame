@@ -1,5 +1,8 @@
 import { Context, Handler } from "aws-lambda";
 
+/**
+ * Dummy response.
+ */
 export const handler: Handler<{}> = async (event: {}, context: Context) => {
   console.log("OK");
 

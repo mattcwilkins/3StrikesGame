@@ -2,6 +2,9 @@ import { XhrClient } from "../../data-io/http/XhrClient";
 import { BaseballPlayer } from "../../interfaces/internal/data-models/game";
 import { WebUIMemoryCache } from "../../services/internal/memory-cache/WebUIMemoryCache";
 
+/**
+ * Client to the player lambda.
+ */
 export class PlayerServiceClient {
   public constructor(
     private xhrClient = new XhrClient(),

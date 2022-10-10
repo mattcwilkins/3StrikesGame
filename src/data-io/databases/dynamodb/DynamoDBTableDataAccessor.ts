@@ -7,6 +7,9 @@ import {
 import { DynamoDBDocument as DocumentClient } from "@aws-sdk/lib-dynamodb/dist-types/DynamoDBDocument";
 import { v4 } from "uuid";
 
+/**
+ * Layer 1 over the DynamoDB SDK client, functions as a DAO.
+ */
 export class DynamoDBTableDataAccessor<T> implements DataAccessor<T> {
   public constructor(
     public readonly table: string,

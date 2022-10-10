@@ -9,6 +9,9 @@ export type WebUICacheData = {
   teams: BaseballTeam[];
 };
 
+/**
+ * Memory cache for browsers.
+ */
 export class WebUIMemoryCache extends MemoryCache<WebUICacheData> {
   public static instance: WebUIMemoryCache = new WebUIMemoryCache();
   public static getInstance() {

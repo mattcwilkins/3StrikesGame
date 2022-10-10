@@ -7,6 +7,9 @@ import { DynamoDBDocument as DocumentClient } from "@aws-sdk/lib-dynamodb";
 import { region } from "../../../config";
 import { DynamoDBTableDataAccessor } from "./DynamoDBTableDataAccessor";
 
+/**
+ * Creates dynamodb data access classes.
+ */
 export class DynamoDBAccessorProvider implements DataAccessorProvider {
   public constructor(
     private dynamodb = new Client({ region }),

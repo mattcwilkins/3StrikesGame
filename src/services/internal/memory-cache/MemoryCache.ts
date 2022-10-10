@@ -1,4 +1,7 @@
-export class MemoryCache<T extends Record<string, any>> {
+/**
+ * Simple memory cache.
+ */
+export abstract class MemoryCache<T extends Record<string, any>> {
   protected data: Partial<T> & Record<string, any> = {};
 
   public set(key: keyof T, value: T[typeof key]): void;

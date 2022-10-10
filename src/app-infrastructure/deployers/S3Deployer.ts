@@ -4,6 +4,9 @@ import { Orchestrator } from "../orchestration/Orchestrator";
 import { HeadObjectOutput } from "@aws-sdk/client-s3";
 import { Deployer } from "../../interfaces/internal/infra/Deployer";
 
+/**
+ * Deploys web ui and lambda zips to S3.
+ */
 export class S3Deployer implements Deployer {
   public static LAMBDA_BUCKET = (accountId: string) =>
     "3-strikes-game-bucket-lambda-" + accountId;

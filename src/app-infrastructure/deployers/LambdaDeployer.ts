@@ -9,6 +9,9 @@ import { Orchestrator } from "../orchestration/Orchestrator";
 import { S3Deployer } from "./S3Deployer";
 import { Deployer } from "../../interfaces/internal/infra/Deployer";
 
+/**
+ * Deploys rest/rpc and worker lambda functions.
+ */
 export class LambdaDeployer implements Deployer {
   public static readonly FN_NAMES = {
     healthcheck: "3StrikesGame-fn-healthcheck",

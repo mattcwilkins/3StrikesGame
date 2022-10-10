@@ -6,6 +6,9 @@ import { LambdaDeployer } from "./LambdaDeployer";
 import { RoleDeployer } from "./RoleDeployer";
 import { region } from "../../config";
 
+/**
+ * Deploys API gateway to connect web ui and lambda rest/rpc handlers.
+ */
 export class ApiGatewayDeployer implements Deployer {
   public static readonly API_NAME = "3-strikes-api-gateway";
 

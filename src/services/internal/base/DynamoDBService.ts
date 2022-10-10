@@ -8,6 +8,9 @@ import {
 } from "../../../interfaces/internal/io/Database";
 import { DynamoDBTableDataAccessor } from "../../../data-io/databases/dynamodb/DynamoDBTableDataAccessor";
 
+/**
+ * Level-2 abstraction base class over the DynamoDBTableDataAccessor (DAO) classes.
+ */
 export class DynamoDBService<T> {
   protected ready: Promise<DataAccessor<T>>;
 
