@@ -10,7 +10,8 @@ export type BaseballPlayer = {
   name: string;
   playingPositions: BaseballPlayerPosition[];
   timestamp: Timestamp;
-  atBats: Identifier<BaseballPlayerAtBat>[];
+  gameDataTimestamp: Timestamp;
+  gameStats: Identifier<BaseballPlayerGameStats>[];
   team: Identifier<BaseballTeam>;
 };
 
@@ -62,15 +63,30 @@ export type ThreeStrikeSelection = {
 };
 
 /**
- * Score is total bases.
+ * Score is total bases and any reached-base scenarios.
  */
-export type BaseballPlayerAtBat = {
+export type BaseballPlayerGameStats = {
   id: Identifier;
+  playerId: Identifier<BaseballPlayer>;
   totalBases: number;
-  walked: boolean;
-  hitByPitch: boolean;
+  walks: number;
+  hitByPitches: number;
   result: string; // for display purposes.
   timestamp: Timestamp; // when at bat was recorded.
+
+  // optional additional stat data.
+  steals?: number;
+  sacBunts?: number;
+  sacFlies?: number;
+  gidp?: number;
+  gitp?: number;
+  go?: number;
+  fo?: number;
+  runs?: number;
+  hits?: number;
+  doubles?: number;
+  triples?: number;
+  homeRuns?: number;
 };
 
 /**

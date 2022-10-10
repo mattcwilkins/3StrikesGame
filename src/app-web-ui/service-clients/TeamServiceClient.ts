@@ -8,17 +8,14 @@ import { WebUIMemoryCache } from "../../services/internal/memory-cache/WebUIMemo
 export class TeamServiceClient {
   public constructor(
     private xhrClient = new XhrClient(),
-    private webUiMemoryCache = new WebUIMemoryCache()
+    private webUiMemoryCache = new WebUIMemoryCache(),
+    private hostPrefix = "https://i654hwgy0i.execute-api.us-east-1.amazonaws.com/prod"
   ) {}
 
   public async getTeams() {
     const data: Promise<BaseballTeam[]> = this.webUiMemoryCache.get(
       "teams",
-      async () =>
-        this.xhrClient.post(
-          "https://i654hwgy0i.execute-api.us-east-1.amazonaws.com/prod/team",
-          {}
-        )
+      async () => this.xhrClient.post(this.hostPrefix + "/team", {})
     );
 
     return data;

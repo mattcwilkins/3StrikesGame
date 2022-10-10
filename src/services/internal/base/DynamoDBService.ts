@@ -28,9 +28,9 @@ export class DynamoDBService<T> {
     return accessor.get(id);
   }
 
-  public async list(): Promise<T[]> {
+  public async list(conditions?: Record<string, any>): Promise<T[]> {
     const accessor = await this.ready;
-    return accessor.list();
+    return accessor.list(conditions);
   }
 
   public async save(

@@ -1,13 +1,35 @@
 #!/usr/bin/env node
 
-import { MLBDataService } from "../services/ingestion/MLBDataService";
+import { MlbDataService } from "../services/ingestion/MlbDataService";
 import fs from "fs";
 import path from "path";
 import { BaseballPlayerService } from "../services/internal/BaseballPlayerService";
 import { BaseballTeamService } from "../services/internal/BaseballTeamService";
+import { BaseballGameStatsService } from "../services/internal/BaseballGameStatsService";
 
 (async () => {
-  const bdata = new MLBDataService();
+  await getPlayerGameData();
+})();
+
+async function getPlayerGameData() {
+  const service = new BaseballGameStatsService();
+  const bdata = new MlbDataService();
+
+  // write(
+  //   await bdata.loadGameStats("592450"),
+  //   "stats-api-game-stats-592450.json"
+  // );
+
+  write(
+    await service.getGameStats("592450"),
+    "dynamodb",
+    "game-stats-592450.json"
+  );
+}
+
+async function playersAndTeams() {
+  const bdata = new MlbDataService();
+
   write(
     await bdata.teamAllSeason(new Date().getFullYear().toString()),
     "teamsAllSeason.json"
@@ -22,7 +44,7 @@ import { BaseballTeamService } from "../services/internal/BaseballTeamService";
   const teamService = new BaseballTeamService();
   const teams = await teamService.listBaseballTeams();
   write(teams, "dynamodb", "teams.json");
-})();
+}
 
 function write(data: any, ...fileName: string[]) {
   fs.writeFileSync(

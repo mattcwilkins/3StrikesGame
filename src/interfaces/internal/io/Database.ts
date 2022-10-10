@@ -44,7 +44,7 @@ export interface DataAccessor<T> {
    * Returns all items. This is not practical on unbounded tables.
    * TODO: pagination options.
    */
-  list(): Promise<Row<T>[]>;
+  list(conditions?: Record<string, any>): Promise<Row<T>[]>;
 
   /**
    * @param id - to be deleted.

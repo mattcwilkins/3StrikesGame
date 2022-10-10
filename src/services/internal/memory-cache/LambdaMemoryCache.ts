@@ -1,14 +1,20 @@
 import { MemoryCache } from "./MemoryCache";
 import {
-  MLBDataRosterResponse,
-  MLBDataTeamAllSeasonResponse,
+  MlbDataRosterResponse,
+  MlbDataTeamAllSeasonResponse,
 } from "../../../interfaces/external/BaseballDataService";
 import { TeamId } from "../../../interfaces/external/MlbDataApi";
+import { Identifier } from "../../../interfaces/internal/io/Database";
+import { BaseballPlayer } from "../../../interfaces/internal/data-models/game";
+import { MlbStatsApiV1PeopleStatsResponse } from "../../../interfaces/external/MlbStatsApi";
 
 export type LambdaMemoryCacheData = {
-  teamAllSeason: MLBDataTeamAllSeasonResponse;
+  teamAllSeason: MlbDataTeamAllSeasonResponse;
   roster: {
-    [rosterWithTeamId in TeamId]: MLBDataRosterResponse;
+    [rosterWithTeamId in TeamId]: MlbDataRosterResponse;
+  };
+  gameStats: {
+    [playerId: Identifier<BaseballPlayer>]: MlbStatsApiV1PeopleStatsResponse;
   };
 };
 
@@ -28,6 +34,10 @@ export class LambdaMemoryCache extends MemoryCache<LambdaMemoryCacheData> {
 
   protected data = {
     teamAllSeason: undefined,
-    roster: {} as Record<TeamId, MLBDataRosterResponse>,
+    roster: {} as Record<TeamId, MlbDataRosterResponse>,
+    gameStats: {} as Record<
+      Identifier<BaseballPlayer>,
+      MlbStatsApiV1PeopleStatsResponse
+    >,
   };
 }

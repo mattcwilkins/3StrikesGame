@@ -1,12 +1,15 @@
 import { MemoryCache } from "./MemoryCache";
 import {
   BaseballPlayer,
+  BaseballPlayerGameStats,
   BaseballTeam,
 } from "../../../interfaces/internal/data-models/game";
+import { Identifier } from "../../../interfaces/internal/io/Database";
 
 export type WebUICacheData = {
   players: BaseballPlayer[];
   teams: BaseballTeam[];
+  playerGameData: Record<Identifier<BaseballPlayer>, BaseballPlayerGameStats[]>;
 };
 
 /**
@@ -25,6 +28,7 @@ export class WebUIMemoryCache extends MemoryCache<WebUICacheData> {
 
   protected data = {
     players: undefined,
+    playerGameData: {},
     teams: undefined,
   };
 }

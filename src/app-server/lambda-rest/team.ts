@@ -11,8 +11,11 @@ export const handler: Handler<APIGatewayEvent> = async (
   event,
   context: Context
 ) => {
-  console.info("team lambda", event, context);
+  console.info("team lambda event", event);
+  console.info("team lambda context", context);
+
   const rpc: Rpc = JSON.parse(event.body || "{}");
+  console.info("team lambda rpc", rpc);
 
   let response;
 

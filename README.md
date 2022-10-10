@@ -7,6 +7,8 @@ The game is broken into 18 scoring periods.
 A scoring period starts on each Friday of the game season and ends on the following Tuesday (Games that start on Tuesday evening but end early Wednesday morning CST will be counted).
 
 Before each scoring period, every 3 Striker can pick 1 player at each the following positions from any MLB team roster:
+
+```
 1st Base:
 2nd Base:
 3rd Base:
@@ -16,7 +18,8 @@ Team Defense: Pick any 1 team
 OPTIONAL :
        Any Catcher can be used at any INFIELD position at any time.
        Any DH can be used in the OUTFIELD position at any time.
-       
+```
+
 Once you pick a player/defense, you cannot pick that player or defense again for the rest of the game.
 
 Picked players will score points based on their real-life performances in the first 3 games that they have a plate appearance in within that scoring period. Only games that are played completely within scoring period will be counted. That means that any game that started before the Friday of the scoring period or that ends after the Tuesday of the scoring period will be disregarded.

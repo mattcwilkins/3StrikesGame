@@ -1,7 +1,7 @@
 import { Context, Handler } from "aws-lambda";
-import { MLBDataService } from "../../services/ingestion/MLBDataService";
+import { MlbDataService } from "../../services/ingestion/MlbDataService";
 
-const mlbDataService = new MLBDataService();
+const mlbDataService = new MlbDataService();
 
 /**
  * Loads roster data into DB.

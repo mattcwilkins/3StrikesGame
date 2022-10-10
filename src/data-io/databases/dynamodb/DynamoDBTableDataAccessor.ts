@@ -6,6 +6,7 @@ import {
 } from "../../../interfaces/internal/io/Database";
 import { DynamoDBDocument as DocumentClient } from "@aws-sdk/lib-dynamodb/dist-types/DynamoDBDocument";
 import { v4 } from "uuid";
+import { ScanCommandInput } from "@aws-sdk/lib-dynamodb";
 
 /**
  * Layer 1 over the DynamoDB SDK client, functions as a DAO.
@@ -27,11 +28,30 @@ export class DynamoDBTableDataAccessor<T> implements DataAccessor<T> {
     return get.Item as Row<T>;
   }
 
-  public async list(): Promise<Row<T>[]> {
+  public async list(conditions: Record<string, any> = {}): Promise<Row<T>[]> {
     const { doc } = this;
-    const list = await doc.scan({
+
+    const params: ScanCommandInput = {
       TableName: this.table,
-    });
+      FilterExpression: Object.entries(conditions)
+        .map(([k, v]) => {
+          return `${k} = :${k}`;
+        })
+        .join(" and "),
+      ExpressionAttributeValues: Object.entries(conditions).reduce(
+        (acc, [k, v]) => {
+          acc[`:${k}`] = v;
+          return acc;
+        },
+        {} as typeof conditions
+      ),
+    };
+    if (Object.keys(conditions).length === 0) {
+      delete params.FilterExpression;
+      delete params.ExpressionAttributeValues;
+    }
+
+    const list = await doc.scan(params);
     return list.Items as Row<T>[];
   }
 

@@ -1,21 +1,52 @@
-import { MLBDataPlayer } from "../../../interfaces/external/BaseballDataService";
+import { MlbDataPlayer } from "../../../interfaces/external/BaseballDataService";
 import {
   BaseballPlayer,
+  BaseballPlayerGameStats,
   BaseballPlayerPosition,
 } from "../../../interfaces/internal/data-models/game";
+import { MlbStatsApiGameData } from "../../../interfaces/external/MlbStatsApi";
 
 /**
  * Maps external data to internal data.
  */
 export class PlayerDataMapper {
-  public static mapPlayer(player: MLBDataPlayer): BaseballPlayer {
+  public static mapPlayer(player: MlbDataPlayer): BaseballPlayer {
     return {
       id: player.player_id,
       name: player.name_display_first_last,
       playingPositions: [PlayerDataMapper.mapPosition(player.primary_position)],
       timestamp: Date.now(),
-      atBats: [],
+      gameStats: [],
+      gameDataTimestamp: 0,
       team: player.team_id,
+    };
+  }
+
+  public static mapGameStats(
+    gameData: MlbStatsApiGameData
+  ): BaseballPlayerGameStats {
+    const stats = gameData.stat;
+
+    return {
+      id: gameData.player.id + "-" + gameData.game.gamePk,
+      doubles: stats.doubles,
+      fo: stats.airOuts,
+      gidp: stats.groundIntoDoublePlay,
+      gitp: stats.groundIntoTriplePlay,
+      go: stats.groundOuts,
+      hitByPitches: stats.hitByPitch,
+      hits: stats.hits,
+      homeRuns: stats.homeRuns,
+      playerId: String(gameData.player.id),
+      result: "",
+      runs: stats.runs,
+      sacBunts: stats.sacBunts,
+      sacFlies: stats.sacFlies,
+      steals: stats.stolenBases,
+      timestamp: new Date(gameData.date).getTime(),
+      totalBases: stats.totalBases,
+      triples: stats.triples,
+      walks: stats.baseOnBalls + stats.intentionalWalks,
     };
   }
 

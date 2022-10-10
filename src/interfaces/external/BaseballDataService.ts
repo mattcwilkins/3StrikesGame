@@ -1,29 +1,29 @@
 import { TeamId } from "./MlbDataApi";
 import { Identifier } from "../internal/io/Database";
 
-export type MLBDataTeamAllSeasonResponse = {
+export type MlbDataTeamAllSeasonResponse = {
   team_all_season: {
     queryResults: {
-      row: MLBDataTeam[];
+      row: MlbDataTeam[];
     };
   };
 };
 
-export type MLBDataTeam = {
+export type MlbDataTeam = {
   team_id: TeamId;
   franchise_code: string; // 3-letter.
   name_display_full: string;
 };
 
-export type MLBDataRosterResponse = {
+export type MlbDataRosterResponse = {
   roster_40: {
     queryResults: {
-      row: MLBDataPlayer[];
+      row: MlbDataPlayer[];
     };
   };
 };
 
-export type MLBDataPlayer = {
+export type MlbDataPlayer = {
   player_id: Identifier;
   name_display_first_last: string;
   name_last: string;
