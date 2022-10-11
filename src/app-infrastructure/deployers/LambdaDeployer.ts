@@ -8,6 +8,7 @@ import { GetRoleResponse } from "@aws-sdk/client-iam";
 import { Orchestrator } from "../orchestration/Orchestrator";
 import { S3Deployer } from "./S3Deployer";
 import { Deployer } from "../../interfaces/internal/infra/Deployer";
+import { Timing } from "../../services/internal/constants/Timing";
 
 /**
  * Deploys rest/rpc and worker lambda functions.
@@ -65,10 +66,14 @@ export class LambdaDeployer implements Deployer {
     if (getFn) {
       console.info("Function exists:", fnName);
 
-      if (getFn.Handler !== handler) {
+      if (
+        getFn.Handler !== handler ||
+        (getFn.Timeout ?? 0) < Timing.MINUTES.FIVE
+      ) {
         await lambda.updateFunctionConfiguration({
           FunctionName: fnName,
           Handler: handler,
+          Timeout: Timing.MINUTES.FIVE,
         });
         console.info("upading handler name to", handler);
         await waitUntilFunctionUpdated(
@@ -98,6 +103,7 @@ export class LambdaDeployer implements Deployer {
         },
         Runtime: Runtime.nodejs16x,
         Description: `${handlerName} handler for 3StrikesGame`,
+        Timeout: Timing.MINUTES.FIVE,
         Handler: handler,
       });
       console.info("Function created:", handlerName);

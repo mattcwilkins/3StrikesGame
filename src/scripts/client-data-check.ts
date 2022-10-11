@@ -21,9 +21,9 @@ async function getPlayerGameData() {
   // );
 
   write(
-    await service.getGameStats("592450"),
+    await service.getGameStats("660271"),
     "dynamodb",
-    "game-stats-592450.json"
+    "game-stats-660271.json"
   );
 }
 

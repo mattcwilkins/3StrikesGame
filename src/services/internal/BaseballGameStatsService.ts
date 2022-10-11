@@ -21,7 +21,7 @@ export class BaseballGameStatsService extends DynamoDBService<BaseballPlayerGame
     playerId: Identifier<BaseballPlayer>
   ): Promise<BaseballPlayerGameStats[]> {
     const player = await this.playerService.get(playerId);
-    const gameDataTimestamp = player.gameDataTimestamp;
+    const gameDataTimestamp = player.gameDataTimestamp || 0;
     const now = Date.now();
     const dataAge = now - gameDataTimestamp;
 

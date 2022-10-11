@@ -22,7 +22,7 @@ export const handler: Handler<APIGatewayEvent> = async (
   let response;
 
   switch (rpc.method) {
-    case "getStats":
+    case "getGameStats":
       response = await baseballGameStatsService.getGameStats(rpc.args[0]);
       break;
     default:

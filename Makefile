@@ -16,6 +16,10 @@ dist:
 dist-web:
 	npx webpack
 
+# webpack watch mode for UI development quick feedback loop.
+ww:
+	npx webpack -c webpack.config.dev.js --watch
+
 # deploy to aws
 aws: dist dist-web
 	node dist/scripts/deploy-aws

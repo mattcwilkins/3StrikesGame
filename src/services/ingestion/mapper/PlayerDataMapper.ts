@@ -5,6 +5,7 @@ import {
   BaseballPlayerPosition,
 } from "../../../interfaces/internal/data-models/game";
 import { MlbStatsApiGameData } from "../../../interfaces/external/MlbStatsApi";
+import { Timing } from "../../internal/constants/Timing";
 
 /**
  * Maps external data to internal data.
@@ -29,6 +30,12 @@ export class PlayerDataMapper {
 
     return {
       id: gameData.player.id + "-" + gameData.game.gamePk,
+
+      timestamp: new Date(gameData.date).getTime() + Timing.HALF_DAY,
+      displayDate: gameData.date,
+      team: gameData.team.name,
+      opponent: gameData.opponent.name,
+
       doubles: stats.doubles,
       fo: stats.airOuts,
       gidp: stats.groundIntoDoublePlay,
@@ -43,7 +50,6 @@ export class PlayerDataMapper {
       sacBunts: stats.sacBunts,
       sacFlies: stats.sacFlies,
       steals: stats.stolenBases,
-      timestamp: new Date(gameData.date).getTime(),
       totalBases: stats.totalBases,
       triples: stats.triples,
       walks: stats.baseOnBalls + stats.intentionalWalks,

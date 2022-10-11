@@ -73,6 +73,9 @@ export type BaseballPlayerGameStats = {
   hitByPitches: number;
   result: string; // for display purposes.
   timestamp: Timestamp; // when at bat was recorded.
+  displayDate: string;
+  team?: string;
+  opponent?: string;
 
   // optional additional stat data.
   steals?: number;

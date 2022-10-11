@@ -9,9 +9,9 @@ import { SelectionForm } from "./selection/SelectionForm";
 export class Root extends React.Component<{}, {}> {
   public render() {
     return (
-      <div>
-        <h1>3 Strikes Game Dev Demo</h1>
-        <h3>Sample selection form</h3>
+      <div className={"container"}>
+        <h1 className={"display-5"}>3 Strikes Game</h1>
+        <h3 className={"display-6"}>Dev Demo</h3>
         <SelectionForm />
       </div>
     );
