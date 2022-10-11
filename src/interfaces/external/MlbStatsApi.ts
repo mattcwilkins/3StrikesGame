@@ -1,5 +1,9 @@
 import { Identifier } from "../internal/io/Database";
-import { BaseballPlayer, BaseballTeam } from "../internal/data-models/game";
+import {
+  BaseballPlayer,
+  BaseballTeam,
+  BaseballTeamDefensiveGamePerformance,
+} from "../internal/data-models/game";
 
 export type MlbStatsApiV1PeopleStatsResponse = {
   copyright: string;
@@ -102,4 +106,53 @@ export type MlbStatsApiGameStatBatter = {
   groundOutsToAirouts: string; // 2.00
   catchersInterference: number;
   atBatsPerHomeRun: string; // 4.00
+};
+
+export type MlbStatsApiV1ScheduleResponse = {
+  copyright: string;
+  totalItems: number;
+  totalEvents: number;
+  totalGames: number;
+  totalGamesInProgress: number;
+  dates: MlbStatsApiV1ScheduleDates[];
+};
+export type MlbStatsApiV1ScheduleDates = {
+  date: string; // YYYY-MM-DD
+  totalGames: number;
+  totalGamesInProgress: number;
+  games: MlbStatsApiV1ScheduleGame[];
+};
+export type MlbStatsApiV1ScheduleGame = {
+  gamePk: Identifier<BaseballTeamDefensiveGamePerformance>;
+  status: {
+    statusCode: "F" | string;
+    detailedState: "Final" | string;
+  };
+  teams: {
+    away: MlbStatsApiV1ScheduleGameTeam;
+    home: MlbStatsApiV1ScheduleGameTeam;
+  };
+  venue: {
+    id: Identifier;
+    name: string;
+    link: string;
+  };
+  content: {
+    link: string;
+  };
+};
+export type MlbStatsApiV1ScheduleGameTeam = {
+  leagueRecord: {
+    wins: number;
+    losses: number;
+    pct: string;
+  };
+  score: number;
+  team: {
+    id: Identifier<BaseballTeam>;
+    name: string;
+    link: string;
+  };
+  isWinner: boolean;
+  seriesNumber: number;
 };

@@ -10,9 +10,15 @@ import { BaseballTeamService } from "../internal/BaseballTeamService";
 import { TeamId } from "../../interfaces/external/MlbDataApi";
 import { Identifier } from "../../interfaces/internal/io/Database";
 import { BaseballPlayer } from "../../interfaces/internal/data-models/game";
-import { MlbStatsApiV1PeopleStatsResponse } from "../../interfaces/external/MlbStatsApi";
+import {
+  MlbStatsApiV1PeopleStatsResponse,
+  MlbStatsApiV1ScheduleResponse,
+} from "../../interfaces/external/MlbStatsApi";
 import { BaseballGameStatsService } from "../internal/BaseballGameStatsService";
 import { inject } from "../internal/dependency-injection/inject";
+import { MetricsService } from "../internal/MetricsService";
+import { BaseballSchedulesService } from "../internal/BaseballScheduleService";
+import { Timing } from "../internal/constants/Timing";
 
 /**
  * Client to the MLBAM lookup-service.
@@ -24,6 +30,8 @@ export class MlbDataService {
     private baseballPlayerService = inject(BaseballPlayerService),
     private baseballTeamService = inject(BaseballTeamService),
     private baseballGameStatsService = inject(BaseballGameStatsService),
+    private baseballSchedulesService = inject(BaseballSchedulesService),
+    private metricsService = inject(MetricsService),
     private cache = new LambdaMemoryCache()
   ) {}
 
@@ -51,7 +59,7 @@ export class MlbDataService {
         name: name_display_full,
         franchiseCode: franchise_code,
         roster: players.map((player) => player.player_id),
-        timestamp: Date.now(),
+        timestamp: 0,
       });
     }
   }
@@ -62,16 +70,20 @@ export class MlbDataService {
     sort_order: string = "name_asc"
   ): Promise<MlbDataTeamAllSeasonResponse> {
     const path = `/json/named.team_all_season.bam?sport_code='mlb'&all_star_sw='${all_star_sw}'&sort_order='${sort_order}'&season='${season}'`;
-    return this.cache.get("teamAllSeason", () =>
-      this.client.get(this.host + path)
-    );
+    return this.cache.get("teamAllSeason", () => {
+      this.metricsService.increment(
+        this.host + "/json/named.team_all_season.bam"
+      );
+      return this.client.get(this.host + path);
+    });
   }
 
   public async roster(teamId: TeamId): Promise<MlbDataRosterResponse> {
     const path = `/json/named.roster_40.bam?team_id=${teamId}`;
-    return this.cache.get(["roster", teamId], () =>
-      this.client.get(this.host + path)
-    );
+    return this.cache.get(["roster", teamId], () => {
+      this.metricsService.increment(this.host + "/json/named.roster_40.bam");
+      return this.client.get(this.host + path);
+    });
   }
 
   public async loadGameStats(
@@ -81,9 +93,12 @@ export class MlbDataService {
     const path =
       `https://statsapi.mlb.com/api/v1/people/${playerId}/stats?stats=gameLog&leagueListId=mlb_hist` +
       `&group=hitting&gameType=R&sitCodes=1,2,3,4,5,6,7,8,9,10,11,12&season=${season}&language=en`;
-    const stats = await this.cache.get(["gameStats", playerId], () =>
-      this.client.get(path)
-    );
+    const stats = await this.cache.get(["gameStats", playerId], () => {
+      this.metricsService.increment(
+        "https://statsapi.mlb.com/api/v1/people/.../stats"
+      );
+      return this.client.get(path);
+    });
 
     for (const game of stats.stats.find(
       (stat) =>
@@ -95,5 +110,37 @@ export class MlbDataService {
       );
     }
     return stats;
+  }
+
+  public async loadTeamScheduleScores(
+    teamId: TeamId,
+    season: string = new Date().getFullYear().toString()
+  ): Promise<MlbStatsApiV1ScheduleResponse> {
+    const path =
+      `https://statsapi.mlb.com/api/v1/schedule?lang=en&sportId=1&season=${season}` +
+      `&teamId=${teamId}&eventTypes=primary&scheduleTypes=games`;
+    const schedule = await this.cache.get(["schedules", teamId], async () => {
+      await this.metricsService.increment(
+        "https://statsapi.mlb.com/api/v1/schedule"
+      );
+      return this.client.get(path);
+    });
+
+    for (const date of schedule.dates) {
+      for (const game of date.games) {
+        await this.baseballSchedulesService.save({
+          id: teamId + "_" + game.gamePk,
+          teamId,
+          displayDate: date.date,
+          timestamp: new Date(date.date).getTime() + Timing.HALF_DAY,
+          runsAllowed:
+            (String(game.teams.home.team.id) === teamId
+              ? game.teams.away.score
+              : game.teams.home.score) || 0,
+        });
+      }
+    }
+
+    return schedule;
   }
 }

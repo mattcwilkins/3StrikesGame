@@ -8,6 +8,7 @@ import { WebUIMemoryCache } from "../../services/internal/memory-cache/WebUIMemo
 import { Identifier } from "../../interfaces/internal/io/Database";
 import { GetGameStats } from "../../interfaces/internal/rpc/PlayerRpc";
 import { Timing } from "../../services/internal/constants/Timing";
+import { DateTimeHelper } from "../../services/internal/DateTimeHelper";
 
 /**
  * Client to the player lambda.
@@ -41,7 +42,7 @@ export class PlayerServiceClient {
         } as GetGameStats)
     );
 
-    const fridayInWeek = getFridayOf(new Date(weekOf)).getTime();
+    const fridayInWeek = DateTimeHelper.getFridayOf(new Date(weekOf)).getTime();
     const wednesdayAfter = fridayInWeek + Timing.SCORING_PERIOD_LENGTH;
 
     return data.filter(
@@ -50,16 +51,4 @@ export class PlayerServiceClient {
         gameStats.timestamp < wednesdayAfter
     );
   }
-}
-
-function getFridayOf(date: Date) {
-  const context = new Date(date.getTime());
-  const first = context.getDate() - context.getDay() + 1;
-  const fifth = first + 4;
-
-  const friday = new Date(context.setDate(fifth));
-  friday.setHours(8);
-  friday.setMinutes(0);
-
-  return friday;
 }

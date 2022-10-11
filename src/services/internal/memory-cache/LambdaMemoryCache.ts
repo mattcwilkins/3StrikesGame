@@ -6,7 +6,10 @@ import {
 import { TeamId } from "../../../interfaces/external/MlbDataApi";
 import { Identifier } from "../../../interfaces/internal/io/Database";
 import { BaseballPlayer } from "../../../interfaces/internal/data-models/game";
-import { MlbStatsApiV1PeopleStatsResponse } from "../../../interfaces/external/MlbStatsApi";
+import {
+  MlbStatsApiV1PeopleStatsResponse,
+  MlbStatsApiV1ScheduleResponse,
+} from "../../../interfaces/external/MlbStatsApi";
 
 export type LambdaMemoryCacheData = {
   teamAllSeason: MlbDataTeamAllSeasonResponse;
@@ -15,6 +18,9 @@ export type LambdaMemoryCacheData = {
   };
   gameStats: {
     [playerId: Identifier<BaseballPlayer>]: MlbStatsApiV1PeopleStatsResponse;
+  };
+  schedules: {
+    [teamId in TeamId]: MlbStatsApiV1ScheduleResponse;
   };
 };
 
@@ -39,5 +45,6 @@ export class LambdaMemoryCache extends MemoryCache<LambdaMemoryCacheData> {
       Identifier<BaseballPlayer>,
       MlbStatsApiV1PeopleStatsResponse
     >,
+    schedules: {} as Record<TeamId, MlbStatsApiV1ScheduleResponse>,
   };
 }

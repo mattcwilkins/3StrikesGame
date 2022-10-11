@@ -25,7 +25,7 @@ export class BaseballGameStatsService extends DynamoDBService<BaseballPlayerGame
     const now = Date.now();
     const dataAge = now - gameDataTimestamp;
 
-    if (dataAge > Timing.ONE_DAY) {
+    if (dataAge > Timing.ONE_HOUR) {
       await inject(MlbDataService).loadGameStats(playerId);
       await this.playerService.save({
         id: playerId,

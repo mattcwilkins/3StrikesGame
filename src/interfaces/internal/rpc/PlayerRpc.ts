@@ -7,4 +7,4 @@ export interface GetGameStats extends Rpc {
   args: [Identifier<BaseballPlayer>];
 }
 
-export type PlayerRpcSet = GetGameStats | Rpc;
+export type PlayerRpcSet = GetGameStats;

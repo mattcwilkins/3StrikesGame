@@ -3,6 +3,7 @@ import {
   BaseballPlayer,
   BaseballPlayerGameStats,
   BaseballTeam,
+  BaseballTeamDefensiveGamePerformance,
 } from "../../../interfaces/internal/data-models/game";
 import { PlayerServiceClient } from "../../service-clients/PlayerServiceClient";
 import { PlayerSelection } from "./PlayerSelection";
@@ -12,6 +13,8 @@ import { DateSelection } from "./DateSelection";
 import { Identifier } from "../../../interfaces/internal/io/Database";
 import { inject } from "../../../services/internal/dependency-injection/inject";
 import { WebUIMemoryCache } from "../../../services/internal/memory-cache/WebUIMemoryCache";
+import { Card } from "../card/Card";
+import { TeamId } from "../../../interfaces/external/MlbDataApi";
 
 export interface SelectionFormProps {}
 
@@ -86,7 +89,15 @@ export class SelectionForm extends React.Component<
             name={"player-selection-outfielder"}
             onInput={this.onInputHandler(5)}
           />
-          <TeamSelection name={"team-defense-selection"} options={teams} />
+          <TeamSelection
+            onInput={(e: FormEvent<HTMLSelectElement>) =>
+              this.onSelectTeam(
+                (e.nativeEvent?.target as HTMLSelectElement)?.value as TeamId
+              )
+            }
+            name={"team-defense-selection"}
+            options={teams}
+          />
           <DateSelection
             initialDate={"2022-08-23"}
             onChange={(dateStr) => this.setState({ date: new Date(dateStr) })}
@@ -137,6 +148,96 @@ export class SelectionForm extends React.Component<
       );
   }
 
+  private async onSelectTeam(teamId: TeamId) {
+    const { cards, date, teams, scores } = this.state;
+    const index = 5;
+    const key = "team_" + teamId;
+    if (!teamId) {
+      scores[index] = 0;
+      cards[index] = <Card key={key} />;
+      this.setState({
+        cards,
+        scores,
+      });
+      return;
+    }
+
+    const cache = inject(WebUIMemoryCache);
+    const team = teams.find((team) => team.id === teamId)!;
+
+    scores[index] = 0;
+    cards[index] = (
+      <Card key={key} title={team.name}>
+        <div className="spinner-border text-success" role={"status"}>
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </Card>
+    );
+    this.setState({
+      cards,
+      scores,
+    });
+
+    try {
+      const defensiveGames: BaseballTeamDefensiveGamePerformance[] =
+        await cache.get(["defensivePerformanceData", teamId], async () =>
+          this.teamServiceClient.getSchedule(teamId, new Date(date).getTime())
+        );
+      const score = Math.max(
+        -25,
+        defensiveGames.reduce((runsAllowed, game) => {
+          return runsAllowed - game.runsAllowed;
+        }, 0)
+      );
+
+      scores[index] = score;
+      cards[index] = (
+        <Card key={key} title={team.name}>
+          {defensiveGames
+            .sort((a, b) => a.timestamp - b.timestamp)
+            .map((defensiveGame) => (
+              <div key={defensiveGame.id}>
+                <em>
+                  {new Date(defensiveGame.timestamp).getMonth() + 1}/
+                  {new Date(defensiveGame.timestamp).getDate() + 1}
+                </em>{" "}
+                <strong>{defensiveGame.runsAllowed}</strong> Runs Allowed
+                <br />
+                <em>
+                  <span style={{ fontSize: "75%" }}>
+                    {/* TODO home away names */}
+                  </span>
+                </em>
+              </div>
+            ))}
+          {defensiveGames.length === 0 && "No Games"}
+          <br />
+          <div style={{ bottom: "1rem", position: "absolute" }}>
+            <em>Score: {score}</em>
+          </div>
+        </Card>
+      );
+
+      this.setState({
+        cards,
+        scores,
+      });
+    } catch (e) {
+      scores[index] = 0;
+      cards[index] = (
+        <Card key={key} title={team.name}>
+          <div className="alert alert-danger" role={"status"}>
+            <span>Data Error</span>
+          </div>
+        </Card>
+      );
+      this.setState({
+        cards,
+        scores,
+      });
+    }
+  }
+
   private async onSelect(
     sequenceNumber: number,
     playerId: Identifier<BaseballPlayer>
@@ -145,7 +246,7 @@ export class SelectionForm extends React.Component<
     const key = playerId + "_" + sequenceNumber;
     if (!playerId) {
       scores[sequenceNumber - 1] = 0;
-      cards[sequenceNumber - 1] = <div key={key} className="col-lg-3" />;
+      cards[sequenceNumber - 1] = <Card key={key} />;
 
       this.setState({
         cards,
@@ -159,74 +260,75 @@ export class SelectionForm extends React.Component<
 
     scores[sequenceNumber - 1] = 0;
     cards[sequenceNumber - 1] = (
-      <div className="col-lg-3" key={key}>
-        <div className="card scorecard">
-          <div className="card-body">
-            <h5 className="display-6">{player.name}</h5>
-            <div className="card-text">
-              <div className="spinner-border text-success" role={"status"}>
-                <span className="visually-hidden">Loading...</span>
-              </div>
-            </div>
-          </div>
+      <Card key={key} title={player.name}>
+        <div className="spinner-border text-success" role={"status"}>
+          <span className="visually-hidden">Loading...</span>
         </div>
-      </div>
+      </Card>
     );
     this.setState({
       cards,
       scores,
     });
 
-    const data: BaseballPlayerGameStats[] = await cache.get(
-      ["playerGameData", playerId],
-      async () =>
-        this.playerServiceClient.getPlayerGameStats(
-          playerId,
-          new Date(date).getTime()
-        )
-    );
+    try {
+      const data: BaseballPlayerGameStats[] = await cache.get(
+        ["playerGameData", playerId],
+        async () =>
+          this.playerServiceClient.getPlayerGameStats(
+            playerId,
+            new Date(date).getTime()
+          )
+      );
 
-    scores[sequenceNumber - 1] = this.getScore(data);
-    cards[sequenceNumber - 1] = (
-      <div className="col-lg-3" key={key}>
-        <div className="card scorecard">
-          <div className="card-body">
-            <h5 className="display-6">{player.name}</h5>
-            <div className="card-text">
-              {data
-                .sort((a, b) => a.timestamp - b.timestamp)
-                .map((gameStats) => (
-                  <div key={gameStats.id}>
-                    <em>
-                      {new Date(gameStats.timestamp).getMonth() + 1}/
-                      {new Date(gameStats.timestamp).getDate() + 1}
-                    </em>{" "}
-                    <strong>{gameStats.totalBases}</strong> TB,{" "}
-                    <strong>{gameStats.walks}</strong> BB,{" "}
-                    <strong>{gameStats.hitByPitches}</strong> HBP
-                    <br />
-                    <em>
-                      <span style={{ fontSize: "75%" }}>
-                        {gameStats.team} - {gameStats.opponent}
-                      </span>
-                    </em>
-                  </div>
-                ))}
-              {data.length === 0 && "No Games Played"}
-              <br />
-              <div style={{ bottom: "1rem", position: "absolute" }}>
-                <em>Score: {scores[sequenceNumber - 1]}</em>
+      scores[sequenceNumber - 1] = this.getScore(data);
+      cards[sequenceNumber - 1] = (
+        <Card key={key} title={player.name}>
+          {data
+            .sort((a, b) => a.timestamp - b.timestamp)
+            .map((gameStats) => (
+              <div key={gameStats.id}>
+                <em>
+                  {new Date(gameStats.timestamp).getMonth() + 1}/
+                  {new Date(gameStats.timestamp).getDate() + 1}
+                </em>{" "}
+                <strong>{gameStats.totalBases}</strong> TB,{" "}
+                <strong>{gameStats.walks}</strong> BB,{" "}
+                <strong>{gameStats.hitByPitches}</strong> HBP
+                <br />
+                <em>
+                  <span style={{ fontSize: "75%" }}>
+                    {gameStats.team} - {gameStats.opponent}
+                  </span>
+                </em>
               </div>
-            </div>
+            ))}
+          {data.length === 0 && "No Games Played"}
+          <br />
+          <div style={{ bottom: "1rem", position: "absolute" }}>
+            <em>Score: {scores[sequenceNumber - 1]}</em>
           </div>
-        </div>
-      </div>
-    );
+        </Card>
+      );
 
-    this.setState({
-      cards,
-      scores,
-    });
+      this.setState({
+        cards,
+        scores,
+      });
+    } catch (e) {
+      scores[sequenceNumber - 1] = 0;
+      cards[sequenceNumber - 1] = (
+        <Card key={key} title={player.name}>
+          <div className="alert alert-danger" role={"status"}>
+            <span>Data Error</span>
+          </div>
+        </Card>
+      );
+      this.setState({
+        cards,
+        scores,
+      });
+    }
   }
 
   private getScore(data: BaseballPlayerGameStats[]): number {

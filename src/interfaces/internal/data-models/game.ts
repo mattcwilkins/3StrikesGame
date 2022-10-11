@@ -97,6 +97,8 @@ export type BaseballPlayerGameStats = {
  */
 export type BaseballTeamDefensiveGamePerformance = {
   id: Identifier;
+  teamId: Identifier<BaseballTeam>;
   runsAllowed: number;
+  displayDate: string;
   timestamp: Timestamp; // when game was concluded.
 };

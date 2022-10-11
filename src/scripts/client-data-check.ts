@@ -6,24 +6,43 @@ import path from "path";
 import { BaseballPlayerService } from "../services/internal/BaseballPlayerService";
 import { BaseballTeamService } from "../services/internal/BaseballTeamService";
 import { BaseballGameStatsService } from "../services/internal/BaseballGameStatsService";
+import { BaseballSchedulesService } from "../services/internal/BaseballScheduleService";
+
+Error.stackTraceLimit = 100;
 
 (async () => {
-  await getPlayerGameData();
+  await getTeamScheduleData();
 })();
+
+async function getTeamScheduleData() {
+  const service = new BaseballSchedulesService();
+  const bdata = new MlbDataService();
+
+  write(
+    await bdata.loadTeamScheduleScores("119"),
+    "stats-api-team-schedule-119.json"
+  );
+
+  write(
+    await service.listScheduleForTeam("119"),
+    "dynamodb",
+    "team-schedule-119.json"
+  );
+}
 
 async function getPlayerGameData() {
   const service = new BaseballGameStatsService();
   const bdata = new MlbDataService();
 
-  // write(
-  //   await bdata.loadGameStats("592450"),
-  //   "stats-api-game-stats-592450.json"
-  // );
+  write(
+    await bdata.loadGameStats("592450"),
+    "stats-api-game-stats-592450.json"
+  );
 
   write(
-    await service.getGameStats("660271"),
+    await service.getGameStats("545358"),
     "dynamodb",
-    "game-stats-660271.json"
+    "game-stats-545358.json"
   );
 }
 

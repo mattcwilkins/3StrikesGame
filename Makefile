@@ -24,6 +24,10 @@ ww:
 aws: dist dist-web
 	node dist/scripts/deploy-aws
 
+# deploy to aws, UI only
+aws-ui: dist dist-web
+	node dist/scripts/deploy-aws-frontend-only
+
 # install development  and runtime dependencies.
 node_modules/typescript:
 	yarn

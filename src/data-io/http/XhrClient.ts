@@ -21,7 +21,12 @@ export class XhrClient implements HttpClient {
         //Call a function when the state changes.
         if (http.readyState == 4) {
           if (http.status < 300) {
-            resolve(JSON.parse(http.responseText));
+            try {
+              resolve(JSON.parse(http.responseText));
+            } catch (e) {
+              console.error("JSON parse error", e);
+              reject(new Error("JSON parse error: " + http.responseText));
+            }
           } else {
             reject(http.responseText);
           }

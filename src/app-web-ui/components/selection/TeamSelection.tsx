@@ -2,25 +2,27 @@ import {
   BaseballPlayer,
   BaseballTeam,
 } from "../../../interfaces/internal/data-models/game";
-import React from "react";
+import React, { FormEvent } from "react";
 
 export interface TeamSelectionProps {
   name: string;
   options: BaseballTeam[];
+  onInput: (e: FormEvent<HTMLSelectElement>) => void | Promise<void>;
 }
 
-export function TeamSelection({ name, options }: TeamSelectionProps) {
+export function TeamSelection({ name, options, onInput }: TeamSelectionProps) {
   return (
     <div className={"col-sm-4"}>
       <label htmlFor={`${name}-select`} className={"form-label"}>
-        Defensive Team (NYI)
+        Defensive Team
       </label>
       <select
+        onInput={onInput}
         name={`${name}-select`}
         id={`${name}-select`}
         className={"form-control"}
-        disabled
       >
+        <option value="">Select...</option>
         {options
           .sort((a, b) => {
             return a.name < b.name ? -1 : 1;

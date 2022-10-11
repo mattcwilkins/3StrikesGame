@@ -57,7 +57,25 @@ export class DynamoDBTableDataAccessor<T> implements DataAccessor<T> {
 
   public async set<T>(row: Row<T> | NewRow<T>): Promise<Identifier> {
     const { doc } = this;
-    const id = row.id || v4();
+    const id = row.id;
+
+    if (!id) {
+      throw new Error(
+        "Cannot upsert without id: \n" + JSON.stringify(row, null, 2)
+      );
+    }
+
+    for (const [k, v] of Object.entries(row)) {
+      if (v === undefined) {
+        throw new Error(
+          "Undefined value in set/save command at key=" +
+            k +
+            ": \n" +
+            JSON.stringify(row, null, 2)
+        );
+      }
+    }
+
     await doc.update({
       TableName: this.table,
       Key: {
@@ -65,7 +83,7 @@ export class DynamoDBTableDataAccessor<T> implements DataAccessor<T> {
       },
       ...createUpdateParamsFor(
         (() => {
-          const withoutId = { ...row };
+          const withoutId: Partial<Row<T>> = { ...row };
           delete withoutId.id;
           return withoutId;
         })()

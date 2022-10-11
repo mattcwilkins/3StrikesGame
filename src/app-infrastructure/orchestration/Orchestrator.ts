@@ -52,6 +52,12 @@ export class Orchestrator implements Deployer {
     await apiGatewayDeployer.deploy();
   }
 
+  public async deployWebUiOnly() {
+    await this.ready;
+    const { s3Deployer } = this;
+    await s3Deployer.deploy();
+  }
+
   public async destroy() {
     await this.ready;
     const { roleDeployer, lambdaDeployer, s3Deployer, apiGatewayDeployer } =
