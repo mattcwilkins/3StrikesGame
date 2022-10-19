@@ -184,10 +184,10 @@ export class SelectionForm extends React.Component<
           this.teamServiceClient.getSchedule(teamId, new Date(date).getTime())
         );
       const score = Math.max(
-        -25,
+        0,
         defensiveGames.reduce((runsAllowed, game) => {
           return runsAllowed - game.runsAllowed;
-        }, 0)
+        }, 25)
       );
 
       scores[index] = score;
