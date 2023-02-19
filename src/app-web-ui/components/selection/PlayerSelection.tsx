@@ -4,6 +4,7 @@ import {
   BaseballTeam,
 } from "../../../interfaces/internal/data-models/game";
 import React, { FormEvent } from "react";
+import { Identifier } from "../../../interfaces/internal/io/Database";
 
 export interface PlayerSelectionProps {
   name: string;
@@ -11,6 +12,7 @@ export interface PlayerSelectionProps {
   options: BaseballPlayer[];
   teamLookup: BaseballTeam[];
   positions: BaseballPlayerPosition[];
+  selection?: Identifier<BaseballPlayer>;
   onInput: (event: FormEvent<HTMLSelectElement>) => void | Promise<void>;
 }
 
@@ -20,6 +22,7 @@ export function PlayerSelection({
   options,
   teamLookup,
   positions,
+  selection,
   onInput,
 }: PlayerSelectionProps) {
   return (
@@ -48,6 +51,7 @@ export function PlayerSelection({
         name={`${name}-select-${sequenceNumber}`}
         id={`${name}-select-${sequenceNumber}`}
         onInput={onInput}
+        value={selection}
       >
         <option value="">Select...</option>
         {options

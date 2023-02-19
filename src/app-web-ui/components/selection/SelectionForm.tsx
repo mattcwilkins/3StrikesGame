@@ -15,6 +15,7 @@ import { inject } from "../../../services/internal/dependency-injection/inject";
 import { WebUIMemoryCache } from "../../../services/internal/memory-cache/WebUIMemoryCache";
 import { Card } from "../card/Card";
 import { TeamId } from "../../../interfaces/external/MlbDataApi";
+import { store } from "../../storage/LocalStorage";
 
 export interface SelectionFormProps {}
 
@@ -24,7 +25,13 @@ export interface SelectionFormState {
   date: Date;
   cards: JSX.Element[];
   scores: number[];
+  selection: {
+    players: Array<Identifier<BaseballPlayer> | undefined>;
+    team?: Identifier<BaseballTeam>;
+  };
 }
+
+const STATE_KEY = "SelectionFormState";
 
 /**
  * Selection form for a 3 Strikes game selection by a game player.
@@ -39,13 +46,17 @@ export class SelectionForm extends React.Component<
     date: new Date("2022-08-23"),
     cards: [],
     scores: [],
+    selection: store.get(STATE_KEY, {
+      players: [] as Array<Identifier<BaseballPlayer>>,
+      team: void 0,
+    }),
   };
 
   private playerServiceClient = new PlayerServiceClient();
   private teamServiceClient = new TeamServiceClient();
 
   public render() {
-    const { players, teams, date, scores } = this.state;
+    const { players, teams, date, scores, selection } = this.state;
     return (
       <div className={"d-grid gap-3"}>
         <form className="selection-form row">
@@ -55,6 +66,7 @@ export class SelectionForm extends React.Component<
             sequenceNumber={1}
             positions={["first", "catcher", "fielder"]}
             name={"player-selection-first-base"}
+            selection={selection.players[1]}
             onInput={this.onInputHandler(1)}
           />
           <PlayerSelection
@@ -63,6 +75,7 @@ export class SelectionForm extends React.Component<
             sequenceNumber={2}
             positions={["second", "catcher", "fielder"]}
             name={"player-selection-second-base"}
+            selection={selection.players[2]}
             onInput={this.onInputHandler(2)}
           />
           <PlayerSelection
@@ -71,6 +84,7 @@ export class SelectionForm extends React.Component<
             sequenceNumber={3}
             positions={["short", "catcher", "fielder"]}
             name={"player-selection-shortstop"}
+            selection={selection.players[3]}
             onInput={this.onInputHandler(3)}
           />
           <PlayerSelection
@@ -79,6 +93,7 @@ export class SelectionForm extends React.Component<
             sequenceNumber={4}
             positions={["third", "catcher", "fielder"]}
             name={"player-selection-third-base"}
+            selection={selection.players[4]}
             onInput={this.onInputHandler(4)}
           />
           <PlayerSelection
@@ -87,6 +102,7 @@ export class SelectionForm extends React.Component<
             sequenceNumber={5}
             positions={["left", "center", "right", "fielder"]}
             name={"player-selection-outfielder"}
+            selection={selection.players[5]}
             onInput={this.onInputHandler(5)}
           />
           <TeamSelection
@@ -96,6 +112,7 @@ export class SelectionForm extends React.Component<
               )
             }
             name={"team-defense-selection"}
+            selection={selection.team}
             options={teams}
           />
           <DateSelection
@@ -123,21 +140,53 @@ export class SelectionForm extends React.Component<
       this.teamServiceClient.getTeams(),
       this.playerServiceClient.getPlayers(),
     ]);
-    this.setState({
-      players: players
-        .sort((p1, p2) => {
-          if (p1.team === p2.team) {
-            return p1.playingPositions.join(",") < p2.playingPositions.join(",")
-              ? -1
-              : 1;
+
+    this.setState(
+      {
+        players: players
+          .sort((p1, p2) => {
+            if (p1.team === p2.team) {
+              return p1.playingPositions.join(",") <
+                p2.playingPositions.join(",")
+                ? -1
+                : 1;
+            }
+            return p1.team < p2.team ? -1 : 1;
+          })
+          .filter((player) => {
+            return !player.playingPositions.includes("pitcher");
+          }),
+        teams,
+      },
+      async () => {
+        const { selection } = this.state;
+        for (let i = 0; i < selection.players.length; ++i) {
+          if (selection.players[i]) {
+            await this.onSelect(i, selection.players[i]!);
           }
-          return p1.team < p2.team ? -1 : 1;
-        })
-        .filter((player) => {
-          return !player.playingPositions.includes("pitcher");
-        }),
-      teams,
-    });
+        }
+        if (selection.team) {
+          await this.onSelectTeam(selection.team as TeamId);
+        }
+      }
+    );
+  }
+
+  /**
+   * @override
+   */
+  public setState<K extends keyof SelectionFormState>(
+    state:
+      | ((
+          prevState: Readonly<SelectionFormState>,
+          props: Readonly<SelectionFormProps>
+        ) => Pick<SelectionFormState, K> | SelectionFormState | null)
+      | Pick<SelectionFormState, K>
+      | SelectionFormState
+      | null,
+    callback?: () => void
+  ) {
+    super.setState(state, callback);
   }
 
   private onInputHandler(sequenceNumber: number) {
@@ -149,9 +198,13 @@ export class SelectionForm extends React.Component<
   }
 
   private async onSelectTeam(teamId: TeamId) {
+    this.state.selection.team = teamId;
+    store.set(STATE_KEY, this.state.selection);
+
     const { cards, date, teams, scores } = this.state;
     const index = 5;
     const key = "team_" + teamId;
+
     if (!teamId) {
       scores[index] = 0;
       cards[index] = <Card key={key} />;
@@ -179,13 +232,14 @@ export class SelectionForm extends React.Component<
     });
 
     try {
-      const defensiveGames: BaseballTeamDefensiveGamePerformance[] =
+      const defensiveGames: BaseballTeamDefensiveGamePerformance[] = (
         await cache.get(["defensivePerformanceData", teamId], async () =>
           this.teamServiceClient.getSchedule(teamId, new Date(date).getTime())
-        );
+        )
+      ).sort((a, b) => a.timestamp - b.timestamp);
       const score = Math.max(
         0,
-        defensiveGames.reduce((runsAllowed, game) => {
+        defensiveGames.slice(0, 3).reduce((runsAllowed, game) => {
           return runsAllowed - game.runsAllowed;
         }, 25)
       );
@@ -193,23 +247,21 @@ export class SelectionForm extends React.Component<
       scores[index] = score;
       cards[index] = (
         <Card key={key} title={team.name}>
-          {defensiveGames
-            .sort((a, b) => a.timestamp - b.timestamp)
-            .map((defensiveGame) => (
-              <div key={defensiveGame.id}>
-                <em>
-                  {new Date(defensiveGame.timestamp).getMonth() + 1}/
-                  {new Date(defensiveGame.timestamp).getDate() + 1}
-                </em>{" "}
-                <strong>{defensiveGame.runsAllowed}</strong> Runs Allowed
-                <br />
-                <em>
-                  <span style={{ fontSize: "75%" }}>
-                    {/* TODO home away names */}
-                  </span>
-                </em>
-              </div>
-            ))}
+          {defensiveGames.map((defensiveGame) => (
+            <div key={defensiveGame.id}>
+              <em>
+                {new Date(defensiveGame.timestamp).getMonth() + 1}/
+                {new Date(defensiveGame.timestamp).getDate() + 1}
+              </em>{" "}
+              <strong>{defensiveGame.runsAllowed}</strong> Runs Allowed
+              <br />
+              <em>
+                <span style={{ fontSize: "75%" }}>
+                  {/* TODO home away names */}
+                </span>
+              </em>
+            </div>
+          ))}
           {defensiveGames.length === 0 && "No Games"}
           <br />
           <div style={{ bottom: "1rem", position: "absolute" }}>
@@ -242,6 +294,9 @@ export class SelectionForm extends React.Component<
     sequenceNumber: number,
     playerId: Identifier<BaseballPlayer>
   ) {
+    this.state.selection.players[sequenceNumber] = playerId;
+    store.set(STATE_KEY, this.state.selection);
+
     const { cards, scores } = this.state;
     const key = playerId + "_" + sequenceNumber;
     if (!playerId) {
