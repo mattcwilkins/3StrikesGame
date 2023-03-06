@@ -1,4 +1,4 @@
-import React, { FormEvent } from "react";
+import React, { FormEvent, useState } from "react";
 import {
   BaseballPlayer,
   BaseballPlayerGameStats,
@@ -15,7 +15,9 @@ import { inject } from "../../../services/internal/dependency-injection/inject";
 import { WebUIMemoryCache } from "../../../services/internal/memory-cache/WebUIMemoryCache";
 import { Card } from "../card/Card";
 import { TeamId } from "../../../interfaces/external/MlbDataApi";
-import { store } from "../../storage/LocalStorage";
+import { store, useLocalStorage } from "../../storage/LocalStorage";
+import { FantasyServiceClient } from "../../service-clients/FantasyServiceClient";
+import { SelectionSubmission } from "../../../interfaces/internal/data-models/fantasy";
 
 export interface SelectionFormProps {}
 
@@ -126,6 +128,17 @@ export class SelectionForm extends React.Component<
           </em>
         </h4>
         {this.renderCards()}
+        <SelectionForm.SubmissionForm
+          selection={{
+            firstBaseFielder: selection.players[1]!,
+            secondBaseFielder: selection.players[2]!,
+            shortStop: selection.players[3]!,
+            thirdBaseFielder: selection.players[4]!,
+            outfield: selection.players[5]!,
+            defensiveTeam: selection.team!,
+            forTimestamp: new Date(date).getTime(),
+          }}
+        />
       </div>
     );
   }
@@ -134,6 +147,78 @@ export class SelectionForm extends React.Component<
     const { cards } = this.state;
     return <div className={"row"}>{cards.filter(Boolean)}</div>;
   }
+
+  public static SubmissionForm = function SubmissionForm({
+    selection,
+  }: {
+    selection: SelectionSubmission;
+  }) {
+    const [username, setUsername] = useLocalStorage("username", "");
+    const [password, setPassword] = useState("");
+    return (
+      <div>
+        <h5>Submit Selection</h5>
+        <form
+          onSubmit={async (e) => {
+            e.nativeEvent.preventDefault();
+
+            await inject(FantasyServiceClient).makeSelection(
+              username,
+              password,
+              selection
+            );
+          }}
+        >
+          <div className="row gy-5">
+            <div className="col-6">
+              <div className="row gy-5">
+                <div className="col-6">
+                  <label htmlFor="username" className={"form-label"}>
+                    Username
+                  </label>
+                  <input
+                    className={"form-control"}
+                    type="text"
+                    id={"username"}
+                    value={username}
+                    onInput={(e) => {
+                      setUsername(
+                        (e.nativeEvent.target as HTMLInputElement).value
+                      );
+                    }}
+                  />
+                </div>
+                <div className="col-6">
+                  <label htmlFor="password" className={"form-label"}>
+                    Password
+                  </label>
+                  <input
+                    className={"form-control"}
+                    type="password"
+                    id={"password"}
+                    value={password}
+                    onInput={(e) => {
+                      setPassword(
+                        (e.nativeEvent.target as HTMLInputElement).value
+                      );
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="col-6" />
+          </div>
+          <div className="row py-3">
+            <div className="col-12">
+              <button type={"submit"} className={"btn btn-primary"}>
+                Submit Selection
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    );
+  };
 
   public async componentDidMount() {
     const [teams, players] = await Promise.all([
@@ -251,7 +336,7 @@ export class SelectionForm extends React.Component<
             <div key={defensiveGame.id}>
               <em>
                 {new Date(defensiveGame.timestamp).getMonth() + 1}/
-                {new Date(defensiveGame.timestamp).getDate() + 1}
+                {new Date(defensiveGame.timestamp).getDate()}
               </em>{" "}
               <strong>{defensiveGame.runsAllowed}</strong> Runs Allowed
               <br />

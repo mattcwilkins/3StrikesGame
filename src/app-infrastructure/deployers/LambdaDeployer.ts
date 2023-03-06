@@ -18,6 +18,7 @@ export class LambdaDeployer implements Deployer {
     healthcheck: "3StrikesGame-fn-healthcheck",
     player: "3StrikesGame-fn-player",
     team: "3StrikesGame-fn-team",
+    fantasy: "3StrikesGame-fn-fantasy",
     loader: "3StrikesGame-fn-loader",
   };
 
@@ -27,6 +28,7 @@ export class LambdaDeployer implements Deployer {
     await this.deployHandler("lambda-rest", "healthcheck");
     await this.deployHandler("lambda-rest", "player");
     await this.deployHandler("lambda-rest", "team");
+    await this.deployHandler("lambda-rest", "fantasy");
     await this.deployHandler("lambda-worker", "loader");
   }
 

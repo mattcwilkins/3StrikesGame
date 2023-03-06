@@ -25,8 +25,11 @@ export class LocalStorage {
 
 export const store = new LocalStorage();
 
-export function useLocalStorage<A>(key: string) {
-  const [value, setValue] = useState<A>(store.get(key));
+export function useLocalStorage<A>(
+  key: string,
+  defaultValue?: A
+): [A, (a: A) => void] {
+  const [value, setValue] = useState<A>(store.get(key, defaultValue));
   return [
     value,
     (val: A) => {
