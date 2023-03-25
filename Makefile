@@ -20,7 +20,7 @@ dist-web:
 ww:
 	npx webpack -c webpack.config.dev.js --watch
 
-# deploy to aws
+# deploy to aws - note: run make zip if lambda code changes
 aws: dist dist-web
 	node dist/scripts/deploy-aws
 

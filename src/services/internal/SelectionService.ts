@@ -10,6 +10,8 @@ import {
 import { Authorization } from "./authorization/Authorization";
 import { NotAuthorizedException } from "./exceptions/NotAuthorizedException";
 import { UserGroupService } from "./UserGroupService";
+import { DateTimeHelper } from "./DateTimeHelper";
+import { v4 } from "uuid";
 
 /**
  * Selections table.
@@ -33,6 +35,27 @@ export class SelectionService extends DynamoDBService<Selection> {
     if (!authorized) {
       throw new NotAuthorizedException("Not authorized");
     }
+
+    const selections: Selection[] = await this.listSelectionsForUser(userId);
+
+    const targetFriday = DateTimeHelper.getFridayOf(
+      new Date(selection.forTimestamp)
+    );
+
+    let uuid;
+
+    for (const oldSelection of selections) {
+      const oldSelectionFriday = DateTimeHelper.getFridayOf(
+        new Date(oldSelection.forTimestamp)
+      );
+      if (oldSelectionFriday.getTime() === targetFriday.getTime()) {
+        uuid = oldSelection.id;
+        break;
+      }
+    }
+
+    selection.id = uuid || v4();
+    selection.user = userId;
 
     await this.save(selection);
   }

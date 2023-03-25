@@ -28,7 +28,7 @@ export class DynamoDBService<T> {
     return accessor.get(id);
   }
 
-  public async list(conditions?: Record<string, any>): Promise<T[]> {
+  public async list(conditions?: Partial<Record<keyof T, any>>): Promise<T[]> {
     const accessor = await this.ready;
     return accessor.list(conditions);
   }

@@ -31,4 +31,11 @@ export class FantasyServiceClient {
 
     return data;
   }
+
+  public async listSelectionsForUser(userId: Identifier<User>) {
+    return this.xhrClient.post(this.hostPrefix + "/fantasy", {
+      method: "listSelectionsForUser",
+      args: [userId],
+    });
+  }
 }

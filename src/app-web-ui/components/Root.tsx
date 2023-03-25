@@ -21,9 +21,12 @@ export class Root extends React.Component<{}, {}> {
             <Link to={"/"}>3 Strikes Game</Link>
           </h1>
           <h3 className={"display-6"}>Dev Demo</h3>
+          <h5>
+            <Link to={"/user/george"}>Test User</Link>
+          </h5>
 
           <Route path={"/user/:userId"}>
-            {(params) => <User userId={params.userId} />}
+            {(params: { userId: string }) => <User userId={params.userId} />}
           </Route>
           <Route path={"/"}>
             <SelectionForm />

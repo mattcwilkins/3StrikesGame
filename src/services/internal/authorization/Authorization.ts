@@ -1,6 +1,6 @@
 import { Identifier } from "../../../interfaces/internal/io/Database";
 import { User } from "../../../interfaces/internal/data-models/fantasy";
-import crypto from "node:crypto";
+import bcrypt from "bcrypt";
 import { inject } from "../dependency-injection/inject";
 import { UserService } from "../UserService";
 import { NotAuthorizedException } from "../exceptions/NotAuthorizedException";
@@ -17,9 +17,10 @@ export abstract class Authorization {
         "Password too short. 8 characters required."
       );
     }
-    const hash = Authorization.hash(password);
     const user = await Authorization.userService.get(userId);
+
     if (!user) {
+      const hash = Authorization.hash(password);
       await Authorization.userService.save({
         id: userId,
         timestamp: Date.now(),
@@ -30,13 +31,15 @@ export abstract class Authorization {
       return true;
     }
 
-    return hash === user.authorizationHash;
+    return Authorization.compare(password, user.authorizationHash);
   }
 
   public static hash(s: string): string {
-    const salt = crypto.randomBytes(16).toString("hex");
-    const hash = crypto.pbkdf2Sync(s, salt, 1000, 64, "sha512").toString("hex");
-
+    const hash = bcrypt.hashSync(s, 10);
     return hash;
+  }
+
+  private static compare(s: string, hash: string): boolean {
+    return bcrypt.compareSync(s, hash);
   }
 }

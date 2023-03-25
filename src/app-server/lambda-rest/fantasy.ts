@@ -1,9 +1,7 @@
 import { APIGatewayEvent, Context, Handler } from "aws-lambda";
 import { FantasyRpcSet } from "../../interfaces/internal/rpc/FantasyRpc";
-import { UserService } from "../../services/internal/UserService";
 import { SelectionService } from "../../services/internal/SelectionService";
 
-const userService = new UserService();
 const selectionService = new SelectionService();
 
 /**
@@ -22,6 +20,9 @@ export const handler: Handler<APIGatewayEvent> = async (
   let response;
 
   switch (rpc.method) {
+    case "listSelectionsForUser":
+      response = await selectionService.listSelectionsForUser(...rpc.args);
+      break;
     case "makeSelection":
       response = await selectionService.makeSelection(...rpc.args);
       break;
