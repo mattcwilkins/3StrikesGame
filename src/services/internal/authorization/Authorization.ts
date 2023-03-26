@@ -1,6 +1,6 @@
 import { Identifier } from "../../../interfaces/internal/io/Database";
 import { User } from "../../../interfaces/internal/data-models/fantasy";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { inject } from "../dependency-injection/inject";
 import { UserService } from "../UserService";
 import { NotAuthorizedException } from "../exceptions/NotAuthorizedException";
