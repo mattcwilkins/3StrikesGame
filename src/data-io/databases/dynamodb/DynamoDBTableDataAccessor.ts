@@ -30,21 +30,23 @@ export class DynamoDBTableDataAccessor<T> implements DataAccessor<T> {
 
   public async list(conditions: Record<string, any> = {}): Promise<Row<T>[]> {
     const { doc } = this;
+    const entries = Object.entries(conditions);
 
     const params: ScanCommandInput = {
       TableName: this.table,
-      FilterExpression: Object.entries(conditions)
+      FilterExpression: entries
         .map(([k, v]) => {
-          return `${k} = :${k}`;
+          return `#${k} = :${k}`;
         })
         .join(" and "),
-      ExpressionAttributeValues: Object.entries(conditions).reduce(
-        (acc, [k, v]) => {
-          acc[`:${k}`] = v;
-          return acc;
-        },
-        {} as typeof conditions
-      ),
+      ExpressionAttributeValues: entries.reduce((acc, [k, v]) => {
+        acc[`:${k}`] = v;
+        return acc;
+      }, {} as typeof conditions),
+      ExpressionAttributeNames: entries.reduce((acc, [k, v]) => {
+        acc[`#${k}`] = k;
+        return acc;
+      }, {} as typeof conditions),
     };
     if (Object.keys(conditions).length === 0) {
       delete params.FilterExpression;

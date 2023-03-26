@@ -4,6 +4,7 @@ import { UserService } from "./UserService";
 import { Identifier } from "../../interfaces/internal/io/Database";
 import {
   Selection,
+  SelectionSubmission,
   User,
   UserGroup,
 } from "../../interfaces/internal/data-models/fantasy";
@@ -27,7 +28,7 @@ export class SelectionService extends DynamoDBService<Selection> {
   public async makeSelection(
     userId: Identifier<User>,
     password: string,
-    selection: Selection
+    submission: SelectionSubmission
   ) {
     await this.ready;
     const authorized = await Authorization.authorize(userId, password);
@@ -39,7 +40,7 @@ export class SelectionService extends DynamoDBService<Selection> {
     const selections: Selection[] = await this.listSelectionsForUser(userId);
 
     const targetFriday = DateTimeHelper.getFridayOf(
-      new Date(selection.forTimestamp)
+      new Date(submission.forTimestamp)
     );
 
     let uuid;
@@ -54,10 +55,14 @@ export class SelectionService extends DynamoDBService<Selection> {
       }
     }
 
-    selection.id = uuid || v4();
-    selection.user = userId;
-
-    await this.save(selection);
+    await this.save({
+      ...submission,
+      score: 0,
+      struck: false,
+      createdTimestamp: Date.now(),
+      id: uuid || v4(),
+      user: userId,
+    });
   }
 
   public async listSelectionsForUser(

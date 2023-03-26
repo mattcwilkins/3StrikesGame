@@ -51,4 +51,4 @@ check:
 # debugging arbitrary script.
 debug:
 	make dist
-	node ./dist/scripts/infra-debug
+	node ./dist/scripts/debug
